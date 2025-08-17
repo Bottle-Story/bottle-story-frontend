@@ -32,19 +32,19 @@ export default function NightMoonOvercast() {
       <Clouds opacity={0.6} speed={0.03} width={250} depth={250} segments={30} />
 
       {/* 달 */}
-      <mesh ref={moonRef} position={[0, 25, -120]} renderOrder={1}>
-        <planeGeometry args={[20, 20]} />
+      <mesh ref={moonRef} position={[10, 21,9]} renderOrder={1}>
+        <planeGeometry args={[22, 16]} />
         <meshStandardMaterial
           map={colorMap}
-          emissive={0xaaaaee}
-          emissiveIntensity={0.08} // 흐린 밤이므로 낮춤
+          emissive={0xccccff}
+          emissiveIntensity={0.15}
           side={DoubleSide}
           transparent
           alphaTest={0.01}
         />
         <pointLight
           color={0xaaaaff}
-          intensity={0.12}
+          intensity={0.18}
           distance={50}
           decay={2}
           position={[0, 25, -120]}
@@ -52,8 +52,8 @@ export default function NightMoonOvercast() {
       </mesh>
 
       {/* 달빛 글로우 - 거의 흐림 */}
-      <mesh ref={glowRef} position={[0, 25, -122]} renderOrder={0}>
-        <circleGeometry args={[25, 128]} />
+      <mesh ref={glowRef} position={[10, 21,9]} renderOrder={0}>
+        <circleGeometry args={[38, 138]} />
         <shaderMaterial
           vertexShader={`varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`}
           fragmentShader={`varying vec2 vUv; void main(){ float dist=distance(vUv, vec2(0.5)); float alpha=0.008*(1.0-smoothstep(0.0,1.0,dist)); gl_FragColor=vec4(0.8,0.8,1.0,alpha);}`}

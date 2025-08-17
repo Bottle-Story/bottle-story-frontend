@@ -30,8 +30,8 @@ export default function NightMoonClear() {
       />
 
       {/* 달 */}
-      <mesh ref={moonRef} position={[0, 25, -120]} renderOrder={1}>
-        <planeGeometry args={[20, 20]} />
+      <mesh ref={moonRef} position={[10, 21,9]} renderOrder={1}>
+        <planeGeometry args={[22, 16]} />
         <meshStandardMaterial
           map={colorMap}
           emissive={0xddddff}
@@ -50,8 +50,8 @@ export default function NightMoonClear() {
       </mesh>
 
       {/* 달빛 글로우 */}
-      <mesh ref={glowRef} position={[0, 25, -122]} renderOrder={0}>
-        <circleGeometry args={[30, 128]} />
+      <mesh ref={glowRef} position={[10, 21,9]} renderOrder={0}>
+        <circleGeometry args={[38, 138]} />
         <shaderMaterial
           vertexShader={`varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }`}
           fragmentShader={`varying vec2 vUv; void main(){ float dist=distance(vUv, vec2(0.5)); float alpha=0.02*(1.0-smoothstep(0.0,1.0,dist)); gl_FragColor=vec4(0.8,0.8,1.0,alpha);}`}

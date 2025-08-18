@@ -28,8 +28,8 @@ export default function DawnMoonClear() {
       />
 
       {/* 달 */}
-      <mesh ref={moonRef} position={[10, 21,9]} renderOrder={1}>
-        <planeGeometry args={[22, 16]} />
+      {/* <mesh ref={moonRef} position={[0, 18,5]} renderOrder={1}>
+        <planeGeometry args={[15, 15]} />
         <meshStandardMaterial
           map={colorMap}
           emissive={0xddddff}
@@ -45,10 +45,10 @@ export default function DawnMoonClear() {
           decay={2}
           position={[0, 25, -120]}
         />
-      </mesh>
+      </mesh> */}
 
       {/* 달빛 글로우 */}
-      <mesh ref={glowRef} position={[10, 21,9]} renderOrder={0}>
+      <mesh ref={glowRef} position={[0, 18,5]} renderOrder={0}>
         <circleGeometry args={[38, 138]} />
         <shaderMaterial
           vertexShader={`varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }`}

@@ -29,24 +29,7 @@ export default function DayClear() {
       />
 
       {/* 태양 */}
-      <mesh ref={sunRef} position={[10, 29, 10]} renderOrder={1}>
-        <planeGeometry args={[25, 25]} />
-        <meshStandardMaterial
-          map={sunMap}
-          emissive={0xffffff}
-          emissiveIntensity={2.5}
-          side={DoubleSide}
-          transparent
-          alphaTest={0.01}
-        />
-        <pointLight
-          color={0xffffff}
-          intensity={2.2}
-          distance={600}
-          decay={1.5}
-          position={[0, 0, 0]}
-        />
-      </mesh>
+
 
 
       {/* 광원 */}

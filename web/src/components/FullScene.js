@@ -10,8 +10,9 @@ import * as THREE from 'three';
 import MusicPlayer from './text/MusicPlayer';
 import FloatingText from './text/FloatingText';
 import FloatingBottleManager from './bottle/FloatingBottleManater';
-
-
+import BottleLetterModal from "./BottleLetterModal"; // 경로는 위치에 맞게 조정
+import UserCount from './text/UserCount';
+import FloatingBottleFromFrontManager from './bottle/FloatingBottleFromFrontManager';
 
 // ===== 바람 효과 (카메라흔들림) =====
 function CameraShake({ windCode = 'WIND_NONE' }) {
@@ -51,6 +52,37 @@ function CameraShake({ windCode = 'WIND_NONE' }) {
 
 // ===== 전체 씬 =====
 function FullOceanScene() {
+
+  const [userCount, setUserCount] = useState(123); // 예시: 현재 이용자 수
+
+  // (추후 WebSocket이나 API로 갱신 가능---사용자 수 )
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setUserCount((prev) => prev + (Math.random() > 0.5 ? 1 : -1));
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+  /* 유리병 편지 띄우기 버튼 */
+  const [isModalOpen, setModalOpen] = useState(false);
+
+  const handleBottleClick = () => setModalOpen(true);
+  const handleClose = () => setModalOpen(false);
+
+  const [frontBottles, setFrontBottles] = useState([]);
+  const handleSubmit = () => {
+    // API 성공 가정 → 바로 병 추가
+    const newBottle = {
+      id: Date.now().toString(),
+      enter: true,
+      position: { y: 1, z: (Math.random() - 0.5) * 10 },
+    };
+
+    setFrontBottles((prev) => [...prev, newBottle]);
+
+    // 모달 닫기
+    setModalOpen(false);
+  };
+
   //컴포넌트 타입 분기처리
   const [oceanCode, setOceanCode] = useState('SUN_RISE_SET_OCEAN');
   const [particleCode, setParticleCode] = useState('PARTICLE');
@@ -95,9 +127,6 @@ function FullOceanScene() {
         <Particle code={particleCode} />
       
 
-  
-        {/* 낙뢰 효과 */}
-
         {/* 하늘/태양/달 */}
          <SkyType code={skyCode} sunPosition={[10, 20, 10]} />
 
@@ -106,11 +135,11 @@ function FullOceanScene() {
         <Ocean code={oceanCode} />
 
         {/* 타이머 */}
-        <Timer font={font} color={fontcolor} position={[26.3, 13.7, -5]} />
+        <Timer font={font} color={fontcolor} position={[24, 13.7, -5]} />
         {/* 기온 */}
-        <Temperature font={font} color={fontcolor} position={[31, 13.7, -5]}/>
+        <Temperature font={font} color={fontcolor} position={[29, 12, -5]}/>
 
-         {/* 답장편지 */}
+         {/* 답장편지 글귀 */}
         <FloatingText
           textArray={['안']}
           startY={-1}
@@ -121,16 +150,21 @@ function FullOceanScene() {
         />
 
 
-      {/* 유리병 편지 */}
+      {/* 흘러들어온 유리병 편지들 */}
       <FloatingBottleManager
         newBottleList={[
         { id: '123132ㅌㅌ' }
         ]}
       />
+     {/* 글쓰기 작성성공 시 유리병 흘러감 */}
+    <FloatingBottleFromFrontManager
+      bottles={frontBottles}
+      removeBottle={(id) => setFrontBottles((prev) => prev.filter((b) => b.id !== id))}
+    />
 
       </Canvas>
 
-  {/* HTML 버튼은 Canvas 바깥에 렌더링 */}
+  {/* 음악 플레이어 */}
     <MusicPlayer 
     src="/audio/sample.mp3" 
     position={[1800, 60]} // left, top(px)
@@ -142,6 +176,57 @@ function FullOceanScene() {
       zIndex: 1000 
     }}
   />
+
+  {/* 유리병 글쓰기 버튼 */}
+      <button
+        onClick={handleBottleClick}
+        style={{
+          position: 'absolute',
+          left: '95%',
+          transform: 'translateX(-50%)',
+          top: 'calc(10% + 80px)',
+          width: '120px',
+          height: '120px',
+          border: 'none',
+          background: 'transparent',
+          cursor: 'pointer',
+          outline: 'none',
+          zIndex: 1000,
+          padding: 0, // 버튼 안쪽 여백 제거
+        }}
+      >
+        <img
+          src="https://teamgoo.s3.ap-northeast-2.amazonaws.com/bottle/ChatGPT+Image+2025%E1%84%82%E1%85%A7%E1%86%AB+8%E1%84%8B%E1%85%AF%E1%86%AF+19%E1%84%8B%E1%85%B5%E1%86%AF+%E1%84%8B%E1%85%A9%E1%84%8C%E1%85%A5%E1%86%AB+12_37_44.png"
+          alt="bottle"
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'contain',
+            transition: 'transform 0.2s ease, filter 0.2s ease',
+            filter: 'drop-shadow(0px 8px 16px rgba(0,0,0,0.3))',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'scale(1.1)';
+            e.currentTarget.style.filter =
+              'drop-shadow(0px 12px 20px rgba(0,0,0,0.4))';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'scale(1)';
+            e.currentTarget.style.filter =
+              'drop-shadow(0px 8px 16px rgba(0,0,0,0.3))';
+          }}
+        />
+      </button>
+
+      {/* 실시간 이용자 표시 */}
+      <UserCount count={userCount} />
+
+      {/* 글쓰기 모달 */}
+      <BottleLetterModal
+        open={isModalOpen}
+        onClose={handleClose}
+        onSubmit={handleSubmit}
+      />
     </div>
   );
 }

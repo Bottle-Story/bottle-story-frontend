@@ -17,7 +17,7 @@ export default function TimeText({font,color,position}) {
       anchorX="center"
       anchorY="middle"
     >
-      19:30
+      2025-08-15 19:30
     </Text>
   );
 }

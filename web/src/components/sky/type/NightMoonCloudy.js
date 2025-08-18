@@ -29,27 +29,10 @@ export default function NightMoonCloudy() {
       />
 
       {/* 달 (그대로) */}
-      <mesh ref={moonRef} position={[10, 21,9]} renderOrder={1}>
-        <planeGeometry args={[22, 16]} />
-        <meshStandardMaterial
-          map={colorMap}
-          emissive={0xddddff}
-          emissiveIntensity={0.2}
-          side={DoubleSide}
-          transparent
-          alphaTest={0.01}
-        />
-        <pointLight
-          color={0xaaaaff}
-          intensity={0.25}
-          distance={50}
-          decay={2}
-          position={[0, 25, -120]}
-        />
-      </mesh>
+
 
       {/* 달빛 글로우 - 구름에 따라 약간 흐리게 */}
-      <mesh ref={glowRef} position={[10, 21,9]} renderOrder={0}>
+      <mesh ref={glowRef} position={[0, 18,5]} renderOrder={0}>
         <circleGeometry args={[38, 138]} />
         <shaderMaterial
           vertexShader={`varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`}

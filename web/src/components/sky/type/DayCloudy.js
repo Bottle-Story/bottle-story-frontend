@@ -21,7 +21,7 @@ export default function DayClear() {
       {/* 맑은 하늘 */}
       <Sky
         turbidity={10}
-        rayleigh={0.7}
+        rayleigh={0.4}
         mieCoefficient={0.001}
         mieDirectionalG={0.6}
         distance={20000}
@@ -29,8 +29,8 @@ export default function DayClear() {
       />
 
       {/* 태양 */}
-      <mesh ref={sunRef} position={[10, 29, 10]} renderOrder={1}>
-        <planeGeometry args={[25, 25]} />
+      {/* <mesh ref={sunRef} position={[0, 18,5]}  renderOrder={1}>
+        <planeGeometry args={[15, 15]} />
         <meshStandardMaterial
           map={sunMap}
           emissive={0xffffff}
@@ -46,7 +46,7 @@ export default function DayClear() {
           decay={1.5}
           position={[0, 0, 0]}
         />
-      </mesh>
+      </mesh> */}
 
 
       {/* 광원 */}

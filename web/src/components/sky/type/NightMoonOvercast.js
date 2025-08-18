@@ -32,27 +32,10 @@ export default function NightMoonOvercast() {
       <Clouds opacity={0.6} speed={0.03} width={250} depth={250} segments={30} />
 
       {/* 달 */}
-      <mesh ref={moonRef} position={[10, 21,9]} renderOrder={1}>
-        <planeGeometry args={[22, 16]} />
-        <meshStandardMaterial
-          map={colorMap}
-          emissive={0xccccff}
-          emissiveIntensity={0.15}
-          side={DoubleSide}
-          transparent
-          alphaTest={0.01}
-        />
-        <pointLight
-          color={0xaaaaff}
-          intensity={0.18}
-          distance={50}
-          decay={2}
-          position={[0, 25, -120]}
-        />
-      </mesh>
+
 
       {/* 달빛 글로우 - 거의 흐림 */}
-      <mesh ref={glowRef} position={[10, 21,9]} renderOrder={0}>
+      <mesh ref={glowRef} position={[0, 18,5]} renderOrder={0}>
         <circleGeometry args={[38, 138]} />
         <shaderMaterial
           vertexShader={`varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`}

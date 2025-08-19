@@ -19,22 +19,7 @@ import BottleDetailModal from './BottleDetailModal';
 
 // ===== 전체 씬 =====
 function FullOceanScene() {
-const addBottleEvery10Seconds = () => {
-  const interval = setInterval(() => {
-    const newId = Date.now().toString();
-    setNewBottleList((prev) => [
-      ...prev,
-      { id: newId, enter: true, position: { y: 1, z: (Math.random() - 0.5) * 10 } },
-    ]);
-  }, 10000);
 
-  return () => clearInterval(interval); // 필요 시 정리용
-};
-
-useEffect(() => {
-  const cleanup = addBottleEvery10Seconds();
-  return cleanup;
-}, []);
   const [userCount, setUserCount] = useState(123); // 예시: 현재 이용자 수
 
   // (추후 WebSocket이나 API로 갱신 가능---사용자 수 )
@@ -79,10 +64,10 @@ useEffect(() => {
   };
 
   //컴포넌트 타입 분기처리
-  const [oceanCode, setOceanCode] = useState('SUN_RISE_SET_OCEAN');
+  const [oceanCode, setOceanCode] = useState('DAY_OCEAN');
   const [particleCode, setParticleCode] = useState('PARTICLE');
-  const [skyCode, setSkyCode] = useState('SUNRISE_PROGRESS_CLEAR');
-  const [windCode, setWindCode] = useState('WIND_NONE');
+  const [skyCode, setSkyCode] = useState('DAY_CLEAR');
+
 
 
   const nightDawnColor = '#E0E7FF';

@@ -28,41 +28,40 @@ export default function FloatingBottle({ bottle, removeBottle, onClick }) {
   }, [bottle.enter, startX, bottle.position.y, bottle.position.z]);
 
   useFrame((state, delta) => {
-    if (!groupRef.current) return;
-    const group = groupRef.current;
-    const pos = group.position;
-    const rot = group.rotation;
+  if (!groupRef.current) return;
+  const group = groupRef.current;
+  const pos = group.position;
 
-    pos.x = THREE.MathUtils.lerp(pos.x, targetX, delta * moveSpeed);
-    pos.y = bottle.position.y + Math.sin(state.clock.elapsedTime * floatSpeed) * floatAmplitude;
-    pos.z = bottle.position.z;
-    rot.y += delta * rotateSpeed;
+  // 위치 계산
+  pos.x = THREE.MathUtils.lerp(pos.x, targetX, delta * moveSpeed);
+  pos.y = bottle.position.y + Math.sin(state.clock.elapsedTime * floatSpeed) * floatAmplitude;
+  pos.z = bottle.position.z;
 
-    const bottleMesh = group.children[0];
-    const submerged = Math.max(0, waterLevel - (pos.y - 0.6));
+  // 원근 스케일: y가 높을수록 작게
+  const scaleFactor = THREE.MathUtils.clamp(2 - pos.y * 0.08, 0.5, 1.2); 
+  group.scale.set(scaleFactor, scaleFactor, scaleFactor);
 
-    // Hover 시 살짝 키우고 색 강조
-    if (hovered) {
-      bottleMesh.scale.set(1.2, 1.2, 1.2);
-      bottleMesh.material.color.set('#4dabf7'); // 하이라이트 색
-      bottleMesh.material.opacity = 0.6;
+  // 회전
+  group.rotation.y += delta * rotateSpeed;
+
+  const bottleMesh = group.children[0];
+  const submerged = Math.max(0, waterLevel - (pos.y - 0.6));
+
+  if (hovered) {
+    bottleMesh.material.color.set('#4dabf7');
+    bottleMesh.material.opacity = 0.6;
+  } else {
+    if (submerged > 0) {
+      bottleMesh.material.color.set('#70a0ff');
+      bottleMesh.material.opacity = THREE.MathUtils.clamp(0.2 - submerged * 0.05, 0.05, 0.35);
     } else {
-      bottleMesh.scale.set(1, 1, 1);
-      if (submerged > 0) {
-        bottleMesh.material.color.set('#70a0ff');
-        bottleMesh.material.opacity = THREE.MathUtils.clamp(0.2 - submerged * 0.05, 0.05, 0.35);
-        bottleMesh.scale.y = 1 + submerged * 0.3;
-        bottleMesh.position.y = submerged * -0.15;
-      } else {
-        bottleMesh.material.color.set('#a3d5ff');
-        bottleMesh.material.opacity = 0.35;
-        bottleMesh.scale.y = 1;
-        bottleMesh.position.y = 0;
-      }
+      bottleMesh.material.color.set('#a3d5ff');
+      bottleMesh.material.opacity = 0.35;
     }
+  }
 
-    if (bottle.leave && pos.x >= leaveX - 0.1) removeBottle(bottle.id);
-  });
+  if (bottle.leave && pos.x >= leaveX - 0.1) removeBottle(bottle.id);
+});
 
   return (
 <group

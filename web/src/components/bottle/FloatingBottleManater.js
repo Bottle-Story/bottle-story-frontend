@@ -13,7 +13,7 @@ export default function FloatingBottleManager({ newBottleList = [], onBottleClic
     do {
       pos = {
         x: Math.random() * 20 - 5,
-        y: Math.random() * 4 + 1,
+        y: Math.random() * 3+ 1,
         z: Math.random() * 5 - 5
       };
       tries++;

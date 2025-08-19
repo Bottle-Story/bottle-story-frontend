@@ -14,8 +14,23 @@ import BottleLetterModal from "./BottleLetterModal"; // 경로는 위치에 맞�
 import UserCount from './text/UserCount';
 import FloatingBottleFromFrontManager from './bottle/FloatingBottleFromFrontManager';
 import BottleDetailModal from './BottleDetailModal';
+import '../App.css'; // 또는 index.css
+import TimeText from './text/Time';
 
 
+function ResponsiveCamera() {
+  const { camera, size } = useThree();
+
+  useEffect(() => {
+    if (size.width < 768) {
+      camera.position.set(0, 15, 25);
+      camera.fov = 120;
+      camera.updateProjectionMatrix();
+    }
+  }, [size, camera]);
+
+  return null;
+}
 
 // ===== 전체 씬 =====
 function FullOceanScene() {
@@ -64,9 +79,9 @@ function FullOceanScene() {
   };
 
   //컴포넌트 타입 분기처리
-  const [oceanCode, setOceanCode] = useState('DAY_OCEAN');
+  const [oceanCode, setOceanCode] = useState('DAWN_OCEAN');
   const [particleCode, setParticleCode] = useState('PARTICLE');
-  const [skyCode, setSkyCode] = useState('DAY_CLEAR');
+  const [skyCode, setSkyCode] = useState('DAWN_MOON_CLEAR');
 
 
 
@@ -95,10 +110,11 @@ function FullOceanScene() {
   ]);
 
   return (
-    <div style={{ width: '100vw', height: '100vh', overflow: 'hidden' }}>
+  <div className="scene-wrapper">
 
 
-      <Canvas camera={{ position: [0, 10, 20], fov: 75 }}>  
+     <Canvas camera={{ position: [0, 10, 20], fov: 75 }}>
+      <ResponsiveCamera />
         {/* 조명 */}
         <ambientLight intensity={0.5} />
         <directionalLight position={[10, 25, 10]} intensity={0.8} />
@@ -114,10 +130,7 @@ function FullOceanScene() {
         {/* 바다 */}
         <Ocean code={oceanCode} />
 
-        {/* 타이머 */}
-        <Timer font={font} color={fontcolor} position={[24, 13.7, -5]} />
-        {/* 기온 */}
-        <Temperature font={font} color={fontcolor} position={[29, 12, -5]}/>
+
 
          {/* 답장편지 글귀 */}
         <FloatingText
@@ -145,89 +158,51 @@ function FullOceanScene() {
 
       </Canvas>
 
-  {/* 음악 플레이어 */}
-      <MusicPlayer 
+      {/* 음악 플레이어 */}
+    <MusicPlayer 
       src="/audio/sample.mp3" 
-      position={[1800, 60]} // left, top(px)
-      style={{ 
-        position: 'absolute', 
-        left: '50%', 
-        transform: 'translateX(-50%)', // 가운데 정렬
-        top: 'calc(50% + 150px)', // Temperature 밑으로 이동
-        zIndex: 1000 
-      }}
+      className="music-player"
     />
 
-  {/* 유리병 글쓰기 버튼 */}
-      <button
-        onClick={handleBottleClick}
-        style={{
-          position: 'absolute',
-          left: '95%',
-          transform: 'translateX(-50%)',
-          top: 'calc(10% + 80px)',
-          width: '120px',
-          height: '120px',
-          border: 'none',
-          background: 'transparent',
-          cursor: 'pointer',
-          outline: 'none',
-          zIndex: 1000,
-          padding: 0, // 버튼 안쪽 여백 제거
-        }}
-      >
-        <img
-          src="https://teamgoo.s3.ap-northeast-2.amazonaws.com/bottle/ChatGPT+Image+2025%E1%84%82%E1%85%A7%E1%86%AB+8%E1%84%8B%E1%85%AF%E1%86%AF+19%E1%84%8B%E1%85%B5%E1%86%AF+%E1%84%8B%E1%85%A9%E1%84%8C%E1%85%A5%E1%86%AB+12_37_44.png"
-          alt="bottle"
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'contain',
-            transition: 'transform 0.2s ease, filter 0.2s ease',
-            filter: 'drop-shadow(0px 8px 16px rgba(0,0,0,0.3))',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'scale(1.1)';
-            e.currentTarget.style.filter =
-              'drop-shadow(0px 12px 20px rgba(0,0,0,0.4))';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'scale(1)';
-            e.currentTarget.style.filter =
-              'drop-shadow(0px 8px 16px rgba(0,0,0,0.3))';
-          }}
-        />
-      </button>
-
-      {/* 실시간 이용자 표시 */}
-      <UserCount count={userCount} />
-
-      {/* 글쓰기 모달 */}
-      <BottleLetterModal
-        open={isModalOpen}
-        onClose={handleClose}
-        onSubmit={handleSubmit}
+    {/* 유리병 글쓰기 버튼 */}
+    <button
+      onClick={handleBottleClick}
+      className="bottle-button"
+    >
+      <img
+        src="https://teamgoo.s3.ap-northeast-2.amazonaws.com/bottle/ChatGPT+Image+2025%E1%84%82%E1%85%A7%E1%86%AB+8%E1%84%8B%E1%85%AF%E1%86%AF+19%E1%84%8B%E1%85%B5%E1%86%AF+%E1%84%8B%E1%85%A9%E1%84%8C%E1%85%A5%E1%86%AB+12_37_44.png"
+        alt="bottle"
       />
+    </button>
 
-      {/* 흘러들어온 유리병 편지 클릭시 모달*/}
+    {/* 실시간 이용자 표시 */}
+    <UserCount count={userCount} className="user-count" />
+
+    {/* 모달 */}
+    <BottleLetterModal open={isModalOpen} onClose={handleClose} onSubmit={handleSubmit} />
     <BottleDetailModal
       open={!!selectedBottleId}
       bottleId={selectedBottleId}
       onClose={handleReadBottleCloseModal}
       onLeave={(id) => {
-        console.log('흘려보내기 API 호출 후 제거:', id);
-        // 배열에서 해당 병 제거
         setNewBottleList((prev) => prev.filter((b) => b.id !== id));
         handleReadBottleCloseModal();
       }}
       onSubmit={(id) => {
-        console.log('작성 API 호출 후 제거:', id);
-        // 배열에서 해당 병 제거
         setNewBottleList((prev) => prev.filter((b) => b.id !== id));
         handleReadBottleCloseModal();
       }}
     />
-    </div>
+
+
+    {/* 타이머 */}
+    <TimeText font={font} color={fontcolor} />
+
+
+    {/* 기온 */}
+    <Temperature  font={font} color={fontcolor}/>
+
+  </div>
   );
 }
 

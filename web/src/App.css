@@ -1,38 +1,69 @@
-.App {
-  text-align: center;
+.scene-wrapper {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+/* 🎵 음악 플레이어 */
+.music-player {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 55%; /* 기본은 데스크탑 기준 */
+  z-index: 1000;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+/* 🍼 유리병 버튼 */
+.bottle-button {
+  position: absolute;
+  right: 2%;
+  top: 7%;
+  width: 120px;
+  height: 120px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  z-index: 1000;
+}
+.bottle-button img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: transform 0.2s ease, filter 0.2s ease;
+  filter: drop-shadow(0px 8px 16px rgba(0,0,0,0.3));
+}
+.bottle-button img:hover {
+  transform: scale(1.1);
+  filter: drop-shadow(0px 12px 20px rgba(0,0,0,0.4));
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+/* 👥 이용자 수 */
+.user-count {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
   color: white;
+  font-size: 18px;
+  z-index: 1000;
 }
 
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+/* 📱 모바일 대응 (768px 이하) */
+@media (max-width: 768px) {
+  .music-player {
+    top: 70%; /* 모바일은 아래로 */
   }
-  to {
-    transform: rotate(360deg);
+
+  .bottle-button {
+    width: 80px;
+    height: 80px;
+    right: 10px;
+    top: 60px;
+  }
+
+  .user-count {
+    font-size: 14px;
+    bottom: 10px;
   }
 }

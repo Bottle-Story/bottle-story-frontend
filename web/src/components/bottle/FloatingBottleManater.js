@@ -1,7 +1,8 @@
+// FloatingBottleManager.js
 import React, { useState, useEffect } from 'react';
 import FloatingBottle from './FloatingBottle';
 
-export default function FloatingBottleManager({ newBottleList = [] }) {
+export default function FloatingBottleManager({ newBottleList = [], onBottleClick }) {
   const [bottles, setBottles] = useState([]);
   const maxBottles = 10;
 
@@ -11,9 +12,9 @@ export default function FloatingBottleManager({ newBottleList = [] }) {
     const minDistance = 4;
     do {
       pos = {
-        x: Math.random() * 10 - 5, // 중앙 화면 영역
-        y: Math.random() * 3 + 1,
-        z: Math.random() * 10 - 5
+        x: Math.random() * 20 - 5,
+        y: Math.random() * 4 + 1,
+        z: Math.random() * 5 - 5
       };
       tries++;
     } while (
@@ -51,13 +52,19 @@ export default function FloatingBottleManager({ newBottleList = [] }) {
   }, [newBottleList]);
 
   const removeBottle = (id) => {
+      console.log('removeBottle called', id);
     setBottles((prev) => prev.filter((b) => b.id !== id));
   };
 
   return (
     <>
       {bottles.map((b) => (
-        <FloatingBottle key={b.id} bottle={b} removeBottle={removeBottle} />
+        <FloatingBottle
+          key={b.id}
+          bottle={b}
+          removeBottle={removeBottle}
+          onClick={onBottleClick}
+        />
       ))}
     </>
   );

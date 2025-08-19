@@ -13,46 +13,28 @@ import FloatingBottleManager from './bottle/FloatingBottleManater';
 import BottleLetterModal from "./BottleLetterModal"; // 경로는 위치에 맞게 조정
 import UserCount from './text/UserCount';
 import FloatingBottleFromFrontManager from './bottle/FloatingBottleFromFrontManager';
-
-// ===== 바람 효과 (카메라흔들림) =====
-function CameraShake({ windCode = 'WIND_NONE' }) {
-  const { camera } = useThree();
-  const basePos = camera.position.clone();
-
-  const windSettings = {
-    WIND_NONE: { intensity: 0, speed: 0 },
-    WIND_WEAK: { intensity: 0.1, speed: 1.0 },           // 약간 올림
-    WIND_NORMAL: { intensity: 0.2, speed: 1.5 },         // 보통보다 좀 더 흔들림
-    WIND_STRONG: { intensity: 0.35, speed: 2.0 },        // 강하게 흔들림
-    WIND_VERY_STRONG: { intensity: 0.6, speed: 2.5 },    // 매우 강하게 흔들림
-  };
-
-  const { intensity, speed } = windSettings[windCode] || windSettings['WIND_NONE'];
-
-  useFrame((state) => {
-    if (intensity === 0) return;
-
-    const time = state.clock.elapsedTime * speed;
-
-    // 카메라 위치 오프셋 강화
-    camera.position.x = basePos.x + Math.sin(time) * intensity;
-    camera.position.y = basePos.y + Math.cos(time * 1.3) * intensity * 0.7;
-    camera.position.z = basePos.z + Math.sin(time * 0.7) * intensity * 0.5;
-
-    // 시점 고정
-    camera.lookAt(0, 0, 0);
-  });
-
-  return null;
-}
-
-
+import BottleDetailModal from './BottleDetailModal';
 
 
 
 // ===== 전체 씬 =====
 function FullOceanScene() {
+const addBottleEvery10Seconds = () => {
+  const interval = setInterval(() => {
+    const newId = Date.now().toString();
+    setNewBottleList((prev) => [
+      ...prev,
+      { id: newId, enter: true, position: { y: 1, z: (Math.random() - 0.5) * 10 } },
+    ]);
+  }, 10000);
 
+  return () => clearInterval(interval); // 필요 시 정리용
+};
+
+useEffect(() => {
+  const cleanup = addBottleEvery10Seconds();
+  return cleanup;
+}, []);
   const [userCount, setUserCount] = useState(123); // 예시: 현재 이용자 수
 
   // (추후 WebSocket이나 API로 갱신 가능---사용자 수 )
@@ -62,9 +44,22 @@ function FullOceanScene() {
     }, 5000);
     return () => clearInterval(interval);
   }, []);
+
+  // 조회 유리병 클릭 시 상세모달
+  const [selectedBottleId, setSelectedBottleId] = useState(null);
+
+  const handleReadBottleClick = (id) => {
+    setSelectedBottleId(id);
+  };
+
+  const handleReadBottleCloseModal = () => {
+    setSelectedBottleId(null);
+  };
+  
+
+
   /* 유리병 편지 띄우기 버튼 */
   const [isModalOpen, setModalOpen] = useState(false);
-
   const handleBottleClick = () => setModalOpen(true);
   const handleClose = () => setModalOpen(false);
 
@@ -90,9 +85,6 @@ function FullOceanScene() {
   const [windCode, setWindCode] = useState('WIND_NONE');
 
 
-
-
-
   const nightDawnColor = '#E0E7FF';
   const DayColor = '#2563EB';
   const sunSetColor = '#FB923C'; 
@@ -109,7 +101,13 @@ function FullOceanScene() {
     fontcolor = sunSetColor;
   }
   
-
+  /*상태관리 조회용 유리병 리스트  */
+  const [newBottleList, setNewBottleList] = useState([
+    { id: '123132ㅌㅌ' },
+    { id: '123132ddㅌㅌx' },
+    { id: '12313' },
+    {id: 'dddd'}
+  ]);
 
   return (
     <div style={{ width: '100vw', height: '100vh', overflow: 'hidden' }}>
@@ -119,10 +117,7 @@ function FullOceanScene() {
         {/* 조명 */}
         <ambientLight intensity={0.5} />
         <directionalLight position={[10, 25, 10]} intensity={0.8} />
-
-        {/* 바람 효과 */}
-        <CameraShake windCode={windCode} />
-
+        
         {/* 파티클 */}
         <Particle code={particleCode} />
       
@@ -152,10 +147,11 @@ function FullOceanScene() {
 
       {/* 흘러들어온 유리병 편지들 */}
       <FloatingBottleManager
-        newBottleList={[
-        { id: '123132ㅌㅌ' }
-        ]}
+          newBottleList={newBottleList}
+          onBottleClick={handleReadBottleClick} // 여기서 전달
       />
+
+
      {/* 글쓰기 작성성공 시 유리병 흘러감 */}
     <FloatingBottleFromFrontManager
       bottles={frontBottles}
@@ -165,17 +161,17 @@ function FullOceanScene() {
       </Canvas>
 
   {/* 음악 플레이어 */}
-    <MusicPlayer 
-    src="/audio/sample.mp3" 
-    position={[1800, 60]} // left, top(px)
-    style={{ 
-      position: 'absolute', 
-      left: '50%', 
-      transform: 'translateX(-50%)', // 가운데 정렬
-      top: 'calc(50% + 150px)', // Temperature 밑으로 이동
-      zIndex: 1000 
-    }}
-  />
+      <MusicPlayer 
+      src="/audio/sample.mp3" 
+      position={[1800, 60]} // left, top(px)
+      style={{ 
+        position: 'absolute', 
+        left: '50%', 
+        transform: 'translateX(-50%)', // 가운데 정렬
+        top: 'calc(50% + 150px)', // Temperature 밑으로 이동
+        zIndex: 1000 
+      }}
+    />
 
   {/* 유리병 글쓰기 버튼 */}
       <button
@@ -227,6 +223,25 @@ function FullOceanScene() {
         onClose={handleClose}
         onSubmit={handleSubmit}
       />
+
+      {/* 흘러들어온 유리병 편지 클릭시 모달*/}
+    <BottleDetailModal
+      open={!!selectedBottleId}
+      bottleId={selectedBottleId}
+      onClose={handleReadBottleCloseModal}
+      onLeave={(id) => {
+        console.log('흘려보내기 API 호출 후 제거:', id);
+        // 배열에서 해당 병 제거
+        setNewBottleList((prev) => prev.filter((b) => b.id !== id));
+        handleReadBottleCloseModal();
+      }}
+      onSubmit={(id) => {
+        console.log('작성 API 호출 후 제거:', id);
+        // 배열에서 해당 병 제거
+        setNewBottleList((prev) => prev.filter((b) => b.id !== id));
+        handleReadBottleCloseModal();
+      }}
+    />
     </div>
   );
 }

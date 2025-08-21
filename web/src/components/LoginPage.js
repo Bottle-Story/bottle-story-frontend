@@ -13,14 +13,9 @@ export default function Login() {
 
   const handleMockLogin = async () => {
     try {
-      const response = await api.post('/mock/login', {
-        username: 'devUser',
-        password: 'devPass'
-      });
+      const response = await api.post('/mock/login');
       if (response.status === 200) {
-        // 성공 시 세션/토큰 처리
         console.log('Mock login success', response.data);
-        window.location.href = '/'; // 로그인 후 리다이렉트
       }
     } catch (error) {
       console.error('Mock login failed', error);
@@ -69,7 +64,7 @@ export default function Login() {
           </button>
 
           {/* 개발환경에서만 보이는 Mock 로그인 */}
-          {ENV === 'dev' && (
+          {ENV === 'develop' && (
             <button
               className="mock-btn"
               onClick={handleMockLogin}

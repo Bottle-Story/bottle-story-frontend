@@ -15,11 +15,11 @@
   left: 50%;
   transform: translate(-50%, -50%) perspective(1000px);
   background: rgba(255, 255, 255, 0.95);
-  padding: 3rem 4rem;
+  padding: clamp(2rem, 5vw, 3rem) clamp(2rem, 5vw, 4rem);
   border-radius: 20px;
   box-shadow: 0 25px 60px rgba(0,0,0,0.35);
   text-align: center;
-  width: 500px; /* 모달 크기 확대 */
+  width: clamp(280px, 80%, 500px); /* 반응형 폭 */
   z-index: 2;
   backdrop-filter: blur(10px);
   animation: modalFadeIn 0.5s ease;
@@ -27,23 +27,23 @@
 
 .login-modal h1 {
   margin-bottom: 0.8rem;
-  font-size: 2.5rem;
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
 }
 
 .login-modal p {
   margin-bottom: 1.2rem;
-  font-size: 1.1rem;
+  font-size: clamp(0.9rem, 2vw, 1.1rem);
   color: #555;
 }
 
 .login-buttons button {
   display: block;
   width: 100%;
-  padding: 0.9rem;
+  padding: clamp(0.6rem, 1.5vw, 0.9rem);
   margin: 0.6rem 0;
   border: none;
   border-radius: 10px;
-  font-size: 1.1rem;
+  font-size: clamp(0.9rem, 2vw, 1.1rem);
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
 }
@@ -71,4 +71,24 @@
 @keyframes modalFadeIn {
   from { opacity: 0; transform: translate(-50%, -50%) scale(0.85); }
   to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+/* 모바일 대응 추가 */
+@media (max-width: 768px) {
+  .login-modal {
+    padding: 1.5rem 2rem;
+  }
+
+  .login-modal h1 {
+    font-size: 1.8rem;
+  }
+
+  .login-modal p {
+    font-size: 0.95rem;
+  }
+
+  .login-buttons button {
+    font-size: 1rem;
+    padding: 0.7rem;
+  }
 }

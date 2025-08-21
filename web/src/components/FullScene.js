@@ -13,10 +13,14 @@ import FloatingBottleManager from './bottle/FloatingBottleManater';
 import BottleLetterModal from "./BottleLetterModal"; // 경로는 위치에 맞게 조정
 import UserCount from './text/UserCount';
 import FloatingBottleFromFrontManager from './bottle/FloatingBottleFromFrontManager';
+import LogoutButton from "./text/LogoutButton"; // 경로 확인 필요
 import BottleDetailModal from './BottleDetailModal';
 import '../App.css'; // 또는 index.css
 import TimeText from './text/Time';
-
+import { setOceanCode, setParticleCode, setSkyCode, setUserCount, setNewBottleList } from '../store/sceneSlice';
+import { useSelector, useDispatch } from 'react-redux';
+import Swal from "sweetalert2";
+import api from '../api/api';
 
 function ResponsiveCamera() {
   const { camera, size } = useThree();
@@ -35,27 +39,64 @@ function ResponsiveCamera() {
 // ===== 전체 씬 =====
 function FullOceanScene() {
 
-  const [userCount, setUserCount] = useState(123); // 예시: 현재 이용자 수
+
+
+ const dispatch = useDispatch();
+  const { oceanCode, particleCode, skyCode, userCount ,newBottleList} = useSelector(state => state.scene);
+
+
 
   // (추후 WebSocket이나 API로 갱신 가능---사용자 수 )
   useEffect(() => {
     const interval = setInterval(() => {
-      setUserCount((prev) => prev + (Math.random() > 0.5 ? 1 : -1));
+      dispatch(setUserCount(userCount + (Math.random() > 0.5 ? 1 : -1)));
     }, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [userCount, dispatch]);
+
+  //유리병 조회 리스트
+  useEffect(() => {
+    const interval = setInterval(() => {
+      dispatch(setNewBottleList([
+        { id: '123132ㅌㅌ' },
+        { id: '123132ddㅌㅌx' },
+        { id: 'dddd' },
+        { id: '12313asdasdsad' },
+    ]));
+
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [newBottleList, dispatch]);
 
   // 조회 유리병 클릭 시 상세모달
   const [selectedBottleId, setSelectedBottleId] = useState(null);
 
   const handleReadBottleClick = (id) => {
+    
     setSelectedBottleId(id);
   };
 
   const handleReadBottleCloseModal = () => {
     setSelectedBottleId(null);
   };
-  
+  //로그아웃
+const handleLogout = async () => {
+  try {
+    const response = await api.get("/member/logout");
+    if (response.status === 200) {
+      // 로그아웃 성공 시 로그인 페이지로 이동
+      
+      window.location.href = "/doit";
+    }
+  } catch (error) {
+    Swal.fire({
+      icon: "error", // success, error, warning, info, question 가능
+      title: "로그아웃 실패",
+      text: "로그아웃 중 문제가 발생했습니다.",
+      confirmButtonText: "확인",
+    });
+  }
+};
 
 
   /* 유리병 편지 띄우기 버튼 */
@@ -79,9 +120,7 @@ function FullOceanScene() {
   };
 
   //컴포넌트 타입 분기처리
-  const [oceanCode, setOceanCode] = useState('DAWN_OCEAN');
-  const [particleCode, setParticleCode] = useState('PARTICLE');
-  const [skyCode, setSkyCode] = useState('DAWN_MOON_CLEAR');
+
 
 
 
@@ -89,25 +128,18 @@ function FullOceanScene() {
   const DayColor = '#2563EB';
   const sunSetColor = '#FB923C'; 
 
-  // 폰트 결정 
+  // // 폰트 결정 
   const font = '/fonts/Pacifico-Regular.ttf';
-  let fontcolor = nightDawnColor; // 기본값
+  let fontColor = nightDawnColor; // 기본값
 
   if (oceanCode === 'NORMAL_OCEAN' || oceanCode === 'DAY_OCEAN') {
-    fontcolor = DayColor;
+    fontColor = DayColor;
   } else if (oceanCode === 'NIGHT_OCEAN' || oceanCode === 'DAWN_OCEAN') {
-    fontcolor = nightDawnColor;
+    fontColor = nightDawnColor;
   } else if (oceanCode === 'SUN_RISE_SET_OCEAN') {
-    fontcolor = sunSetColor;
+    fontColor = sunSetColor;
   }
   
-  /*상태관리 조회용 유리병 리스트  */
-  const [newBottleList, setNewBottleList] = useState([
-    { id: '123132ㅌㅌ' },
-    { id: '123132ddㅌㅌx' },
-    { id: '12313' },
-    {id: 'dddd'}
-  ]);
 
   return (
   <div className="scene-wrapper">
@@ -139,7 +171,7 @@ function FullOceanScene() {
           endY={12}
           delay={0.5}
           font={font}
-          fontcolor={fontcolor}
+          fontcolor={fontColor}
         />
 
 
@@ -177,7 +209,8 @@ function FullOceanScene() {
 
     {/* 실시간 이용자 표시 */}
     <UserCount count={userCount} className="user-count" />
-
+      {/* 로그아웃 버튼 */}
+      <LogoutButton onLogout={handleLogout} />
     {/* 모달 */}
     <BottleLetterModal open={isModalOpen} onClose={handleClose} onSubmit={handleSubmit} />
     <BottleDetailModal
@@ -196,11 +229,11 @@ function FullOceanScene() {
 
 
     {/* 타이머 */}
-    <TimeText font={font} color={fontcolor} />
+    <TimeText font={font} color={fontColor} />
 
 
     {/* 기온 */}
-    <Temperature  font={font} color={fontcolor}/>
+    <Temperature  font={font} color={fontColor}/>
 
   </div>
   );

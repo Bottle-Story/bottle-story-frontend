@@ -16,6 +16,7 @@ export default function Login() {
       const response = await api.post('/member/mock/login');
       if (response.status === 200) {
         console.log('Mock login success', response.data);
+        window.location.href='/';
       }
     } catch (error) {
       console.error('Mock login failed', error);

@@ -15,9 +15,11 @@ const sceneSlice = createSlice({
     setParticleCode: (state, action) => { state.particleCode = action.payload; },
     setSkyCode: (state, action) => { state.skyCode = action.payload; },
     setUserCount: (state, action) => { state.userCount = action.payload; },
-    setNewBottleList: (state, action) => { state.newBottleList = action.payload; }
+    setNewBottleList: (state, action) => { state.newBottleList = action.payload; },
+    setUserLat: (state, action) => { state.userLat = action.payload; },
+    setUserLot: (state, action) => { state.userLot = action.payload; }
   }
 });
 
-export const { setOceanCode, setParticleCode, setSkyCode, setUserCount , setNewBottleList} = sceneSlice.actions;
+export const { setOceanCode, setParticleCode, setSkyCode, setUserCount , setNewBottleList,setUserLat,setUserLot} = sceneSlice.actions;
 export default sceneSlice.reducer;

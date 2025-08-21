@@ -1,0 +1,30 @@
+.logout-button {
+  position: absolute;
+  top: 250px; /* UserCount 바로 밑 */
+  right: 20px;
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  padding: clamp(8px, 2vw, 12px); /* 화면 크기에 따라 크기 조절 */
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.2s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(18px, 3vw, 28px); /* 아이콘 크기 반응형 */
+}
+
+/* hover 효과는 그대로 */
+.logout-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* 모바일 대응 */
+@media (max-width: 768px) {
+  .logout-button {
+    top: 230px; /* 모바일에서 조금 위로 */
+    right: 12px;
+    padding: clamp(6px, 3vw, 10px);
+    font-size: clamp(16px, 5vw, 24px);
+  }
+}

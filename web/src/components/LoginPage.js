@@ -13,7 +13,7 @@ export default function Login() {
 
   const handleMockLogin = async () => {
     try {
-      const response = await api.post('/mock/login');
+      const response = await api.post('/member/mock/login');
       if (response.status === 200) {
         console.log('Mock login success', response.data);
       }

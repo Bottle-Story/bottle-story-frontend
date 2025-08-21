@@ -4,13 +4,31 @@ import { Canvas } from '@react-three/fiber';
 import Ocean from './ocean/Ocean';
 import SkyType from './sky/Sky';
 import '../css/Login.css';
+import api from '../api/api'; // mock 로그인 호출용
 
 export default function Login() {
-    const API_BASE = process.env.REACT_APP_API_BASE; // 환경변수 불러오기
-    const LOGIN_API_BASE =process.env.REACT_APP_LOGIN_API_BASE;
+  const API_BASE = process.env.REACT_APP_API_BASE; 
+  const LOGIN_API_BASE = process.env.REACT_APP_LOGIN_API_BASE;
+  const ENV = process.env.REACT_APP_ENV; // 개발환경 구분용 변수 (dev, prod 등)
+
+  const handleMockLogin = async () => {
+    try {
+      const response = await api.post('/mock/login', {
+        username: 'devUser',
+        password: 'devPass'
+      });
+      if (response.status === 200) {
+        // 성공 시 세션/토큰 처리
+        console.log('Mock login success', response.data);
+        window.location.href = '/'; // 로그인 후 리다이렉트
+      }
+    } catch (error) {
+      console.error('Mock login failed', error);
+    }
+  };
+
   return (
     <div style={{ width: '100vw', height: '100vh', overflow: 'hidden', position: 'relative' }}>
-      
       {/* 3D 배경 */}
       <Canvas camera={{ position: [0, 10, 20], fov: 75 }}>  
         <ambientLight intensity={0.5} />
@@ -49,6 +67,16 @@ export default function Login() {
           >
             구글 로그인
           </button>
+
+          {/* 개발환경에서만 보이는 Mock 로그인 */}
+          {ENV === 'dev' && (
+            <button
+              className="mock-btn"
+              onClick={handleMockLogin}
+            >
+              개발용 Mock 로그인
+            </button>
+          )}
         </div>
       </div>
     </div>

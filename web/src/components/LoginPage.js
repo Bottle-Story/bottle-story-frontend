@@ -6,6 +6,8 @@ import SkyType from './sky/Sky';
 import '../css/Login.css';
 
 export default function Login() {
+    const API_BASE = process.env.REACT_APP_API_BASE; // 환경변수 불러오기
+    const LOGIN_API_BASE =process.env.REACT_APP_LOGIN_API_BASE;
   return (
     <div style={{ width: '100vw', height: '100vh', overflow: 'hidden', position: 'relative' }}>
       
@@ -27,9 +29,26 @@ export default function Login() {
         <p>몽환적인 감성과 함께 유리병 편지를 띄워보세요</p>
 
         <div className="login-buttons">
-          <button className="kakao-btn">카카오 로그인</button>
-          <button className="naver-btn">네이버 로그인</button>
-          <button className="google-btn">구글 로그인</button>
+          <button
+            className="kakao-btn"
+            onClick={() => window.location.href=`${LOGIN_API_BASE}/oauth2/authorization/kakao`}
+          >
+            카카오 로그인
+          </button>
+
+          <button
+            className="naver-btn"
+            onClick={() => window.location.href=`${LOGIN_API_BASE}/oauth2/authorization/naver`}
+          >
+            네이버 로그인
+          </button>
+
+          <button
+            className="google-btn"
+            onClick={() => window.location.href=`${LOGIN_API_BASE}/oauth2/authorization/google`}
+          >
+            구글 로그인
+          </button>
         </div>
       </div>
     </div>

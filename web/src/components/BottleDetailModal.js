@@ -1,29 +1,39 @@
 // BottleDetailModal.js
 import React, { useEffect, useState } from 'react';
 import '../css/BottleDetailModal.css';
-
+import api from '../api/api';
 export default function BottleDetailModal({ open, bottleId, onClose, onLeave, onSubmit }) {
   const [bottle, setBottle] = useState(null);
   const [text, setText] = useState('');
 
-  useEffect(() => {
-    // if (open && bottleId) {
-    //   fetch(`/api/bottle/${bottleId}`)
-    //     .then(res => res.json())
-    //     .then(data => setBottle(data))
-    //     .catch(err => {
-    //       console.error(err);
-    //       setBottle({ title: '불러오기 실패', content: '내용을 가져올 수 없습니다.' });
-    //     });
-    // }
-      if (open && bottleId) {
-    // API 호출 대신 임시 데이터
-    setBottle({ 
-      id: bottleId,   // <- id를 넣어야 handleLeave/handleSubmit에서 사용 가능
-      title: '불러오기 실패', 
-      content: '내용을 가져올 수 없습니다.' 
-    });
-  }
+    useEffect(() => {
+    const fetchBottle = async () => {
+      try {
+        if (open && bottleId) {
+          // 사용자 정보 예시 (테스트 용도)
+          const res = await api.get("/member/devtest10");
+          console.log("내 정보:", res.data);
+                  setBottle({
+          id: bottleId,
+          title: '불러오기 실패',
+          content: '내용을 가져올 수 없습니다.'
+        });
+
+          // // 병 정보 가져오기
+          // const bottleRes = await api.get(`/api/bottle/${bottleId}`);
+          // setBottle(bottleRes.data);
+        }
+      } catch (err) {
+        console.error(err);
+        setBottle({
+          id: bottleId,
+          title: '불러오기 실패',
+          content: '내용을 가져올 수 없습니다.'
+        });
+      }
+    };
+
+    fetchBottle();
   }, [open, bottleId]);
 
   if (!open || !bottle) return null;

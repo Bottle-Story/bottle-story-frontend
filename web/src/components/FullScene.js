@@ -17,7 +17,7 @@ import LogoutButton from "./text/LogoutButton"; // 경로 확인 필요
 import BottleDetailModal from './BottleDetailModal';
 import '../App.css'; // 또는 index.css
 import TimeText from './text/Time';
-import { setOceanCode, setParticleCode, setSkyCode, setUserCount, setNewBottleList } from '../store/sceneSlice';
+import { setOceanCode, setParticleCode, setSkyCode, setUserCount, setNewBottleList,setUserLat,setUserLot } from '../store/sceneSlice';
 import { useSelector, useDispatch } from 'react-redux';
 import Swal from "sweetalert2";
 import api from '../api/api';
@@ -42,8 +42,31 @@ function FullOceanScene() {
 
 
  const dispatch = useDispatch();
-  const { oceanCode, particleCode, skyCode, userCount ,newBottleList} = useSelector(state => state.scene);
+  const { oceanCode, particleCode, skyCode, userCount ,newBottleList,userLat,userLot} = useSelector(state => state.scene);
 
+ useEffect(() => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const { latitude, longitude } = pos.coords;
+         dispatch(setUserLat(latitude));
+         dispatch(setUserLot(longitude));
+          
+        },
+        (error) => {
+          console.error("위치 정보 가져오기 실패:", error);
+        },
+        { enableHighAccuracy: true } // 정확도 높이기
+      );
+    } else {
+      console.error("이 브라우저는 위치 정보를 지원하지 않습니다.");
+    }
+
+
+  }, []);
+
+  
+   console.log("현재 위치:", userLat, userLot);
 
 
   // (추후 WebSocket이나 API로 갱신 가능---사용자 수 )

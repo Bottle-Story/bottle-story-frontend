@@ -64,7 +64,7 @@ export default function Login() {
           </button>
 
           {/* 개발환경에서만 보이는 Mock 로그인 */}
-          {ENV === 'develop' && (
+          {ENV === 'staging' && (
             <button
               className="mock-btn"
               onClick={handleMockLogin}

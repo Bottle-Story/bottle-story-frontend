@@ -49,15 +49,26 @@ export const connectWebSocket = async () => {
             store.dispatch(setWebsocketConnected(true));
             reconnectAttempts = 0;
 
-            // 구독 예시
-            stompClient.subscribe('/topic/test', (msg) => {
+            // 구독
+            
+            //테스트
+            // 날씨/bgm 
+            stompClient.subscribe('/user/topic/wthrBgm', (msg) => {
                 console.log('받은 메시지:', JSON.parse(msg.body));
-            });
-
-            stompClient.subscribe('/user/topic', (msg) => {
+            });      
+             // 유리병 조회 리스트
+            stompClient.subscribe('/user/topic/btlList', (msg) => {
                 console.log('받은 메시지:', JSON.parse(msg.body));
-            });            
-
+            });   
+             // 유리병 답변 글귀 
+            stompClient.subscribe('/user/topic/btlReply', (msg) => {
+                console.log('받은 메시지:', JSON.parse(msg.body));
+            }); 
+             //실시간 유저
+            stompClient.subscribe('/topic/liveUser', (msg) => {
+                console.log('받은 메시지:', JSON.parse(msg.body));
+            });                         
+            //개별메시지(웹소켓 세션 강제종료)
             stompClient.subscribe('/user/topic/disconnect', (msg) => {
                 console.log('받은 메시지:', JSON.parse(msg.body));
                 // 서버에서 강제 종료 신호를 받으면 연결 종료

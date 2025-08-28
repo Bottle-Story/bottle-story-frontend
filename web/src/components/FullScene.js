@@ -1,12 +1,9 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { Sky } from '@react-three/drei';
 import Ocean from './ocean/Ocean';
 import Particle from './particle/Particle';
 import SkyType from './sky/Sky';
-import Timer from './text/Time';
 import Temperature from './text/Temperature';
-import * as THREE from 'three';
 import MusicPlayer from './text/MusicPlayer';
 import FloatingText from './text/FloatingText';
 import FloatingBottleManager from './bottle/FloatingBottleManater';
@@ -21,6 +18,7 @@ import { setOceanCode, setParticleCode, setSkyCode, setUserCount, setNewBottleLi
 import { useSelector, useDispatch } from 'react-redux';
 import Swal from "sweetalert2";
 import api from '../api/api';
+import { connectWebSocket } from '../socket/socketClient';
 
 function ResponsiveCamera() {
   const { camera, size } = useThree();
@@ -66,7 +64,16 @@ function FullOceanScene() {
   }, []);
 
   
-   console.log("현재 위치:", userLat, userLot);
+  useEffect(() => {
+    const client = connectWebSocket((message) => {
+      console.log("받은 메시지:", message);
+    });
+
+    return () => {
+      // 컴포넌트 언마운트 시 종료 옵션 필요시
+      // client.deactivate();
+    };
+  }, []);
 
 
   // (추후 WebSocket이나 API로 갱신 가능---사용자 수 )

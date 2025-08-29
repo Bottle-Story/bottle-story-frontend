@@ -4,7 +4,7 @@ const initialState = {
   oceanCode: 'DAWN_OCEAN',
   particleCode: 'PARTICLE',
   skyCode: 'DAWN_MOON_CLEAR',
-  userCount: 121,
+  userCount: 0,
   websocketConnected: false // ← 웹소켓 연결 상태 추가
 
 };

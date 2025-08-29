@@ -1,9 +1,11 @@
 // socketClient.js
+
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client'; 
-import { setWebsocketConnected } from '../store/sceneSlice';
+import { setUserCount, setWebsocketConnected } from '../store/sceneSlice';
 import { store } from '../store/index';
 import api from "../api/api";
+
 
 let stompClient = null;
 let reconnectAttempts = 0;
@@ -37,6 +39,8 @@ const createWebSocketClient = () => {
 };
 
 export const connectWebSocket = async () => {
+
+
     const { websocketConnected } = store.getState().scene;
 
     if (websocketConnected) return stompClient;
@@ -66,8 +70,18 @@ export const connectWebSocket = async () => {
             }); 
              //실시간 유저
             stompClient.subscribe('/topic/liveUser', (msg) => {
-                console.log('받은 메시지:', JSON.parse(msg.body));
-            });                         
+                try {
+                    const body = JSON.parse(msg.body);
+                    // body 구조 확인 필요 (예: { userCnt: 12 })
+
+                    if (body.data.userCnt !== undefined) {
+                        store.dispatch(setUserCount(body.data.userCnt)); // Redux 상태 갱신
+                        // console.log('실시간 유저 수 갱신:', body.data.userCnt);
+                    }
+                } catch (e) {
+                    console.error('실시간 유저 수 파싱 실패', e);
+                }
+            });                    
             //개별메시지(웹소켓 세션 강제종료)
             stompClient.subscribe('/user/topic/disconnect', (msg) => {
                 console.log('받은 메시지:', JSON.parse(msg.body));
@@ -115,6 +129,16 @@ export const connectWebSocket = async () => {
 
     return stompClient;
 };
+
+export const sendLocation = (lat, lot) => {
+  if (stompClient && stompClient.connected) {
+    stompClient.publish({
+      destination: "/app/member/location",
+      body: JSON.stringify({ lat, lot }),
+    });
+  }
+};
+
 
 export const disconnectWebSocket = () => {
     if (stompClient && stompClient.connected) {

@@ -19,6 +19,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import Swal from "sweetalert2";
 import api from '../api/api';
 import { connectWebSocket } from '../socket/socketClient';
+import { sendLocation } from '../socket/socketClient';
 
 function ResponsiveCamera() {
   const { camera, size } = useThree();
@@ -39,36 +40,41 @@ function FullOceanScene() {
 
 
 
- const dispatch = useDispatch();
+  const dispatch = useDispatch();
   const { oceanCode, particleCode, skyCode, userCount ,newBottleList,userLat,userLot} = useSelector(state => state.scene);
 
- useEffect(() => {
-    if ("geolocation" in navigator) {
+  useEffect(() => {
+    if (!("geolocation" in navigator)) return;
+
+    let intervalId;
+
+    const sendCurrentPosition = () => {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           const { latitude, longitude } = pos.coords;
-         dispatch(setUserLat(latitude));
-         dispatch(setUserLot(longitude));
-          
+          dispatch(setUserLat(latitude));
+          dispatch(setUserLot(longitude));
+
+          // 서버로 무조건 전송
+          sendLocation(latitude, longitude);
         },
-        (error) => {
-          console.error("위치 정보 가져오기 실패:", error);
-        },
-        { enableHighAccuracy: true } // 정확도 높이기
+        (err) => console.error(err),
+        { enableHighAccuracy: true }
       );
-    } else {
-      console.error("이 브라우저는 위치 정보를 지원하지 않습니다.");
-    }
+    };
 
+    // 10분마다 위치 전송
+    intervalId = setInterval(sendCurrentPosition, 10 * 60 * 1000); // 10분 = 600000ms
 
-  }, []);
-
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [dispatch]);
   
   useEffect(() => {
     const client = connectWebSocket((message) => {
-      console.log("받은 메시지:", message);
-    });
 
+    });
     return () => {
       // 컴포넌트 언마운트 시 종료 옵션 필요시
       // client.deactivate();
@@ -77,12 +83,7 @@ function FullOceanScene() {
 
 
   // (추후 WebSocket이나 API로 갱신 가능---사용자 수 )
-  useEffect(() => {
-    const interval = setInterval(() => {
-      dispatch(setUserCount(userCount + (Math.random() > 0.5 ? 1 : -1)));
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [userCount, dispatch]);
+
 
   //유리병 조회 리스트
   useEffect(() => {

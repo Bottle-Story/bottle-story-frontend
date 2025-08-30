@@ -110,6 +110,25 @@ function FullOceanScene() {
   const handleReadBottleCloseModal = () => {
     setSelectedBottleId(null);
   };
+
+// 사전 로그아웃
+const handlePreLogout = async () => {
+  try {
+    const response = await api.put("/member/pre/logout");
+    if (response.status === 200) {
+      // 사전 로그아웃 성공 후 실제 로그아웃 실행
+      await handleLogout();  
+    }
+  } catch (error) {
+    Swal.fire({
+      icon: "error",
+      title: "로그아웃 실패",
+      text: "로그아웃 중 문제가 발생했습니다.",
+      confirmButtonText: "확인",
+    });
+  }
+};
+
   //로그아웃
 const handleLogout = async () => {
   try {
@@ -241,7 +260,7 @@ const handleLogout = async () => {
     {/* 실시간 이용자 표시 */}
     <UserCount count={userCount} className="user-count" />
       {/* 로그아웃 버튼 */}
-      <LogoutButton onLogout={handleLogout} />
+      <LogoutButton onLogout={handlePreLogout} />
     {/* 모달 */}
     <BottleLetterModal open={isModalOpen} onClose={handleClose} onSubmit={handleSubmit} />
     <BottleDetailModal

@@ -1,5 +1,6 @@
+// src/components/FullOceanScene.js
 import React, { useRef, useState, useEffect } from 'react';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { Canvas, useThree } from '@react-three/fiber';
 import Ocean from './ocean/Ocean';
 import Particle from './particle/Particle';
 import SkyType from './sky/Sky';
@@ -7,19 +8,18 @@ import Temperature from './text/Temperature';
 import MusicPlayer from './text/MusicPlayer';
 import FloatingText from './text/FloatingText';
 import FloatingBottleManager from './bottle/FloatingBottleManater';
-import BottleLetterModal from "./BottleLetterModal"; // 경로는 위치에 맞게 조정
+import BottleLetterModal from "./BottleLetterModal";
 import UserCount from './text/UserCount';
 import FloatingBottleFromFrontManager from './bottle/FloatingBottleFromFrontManager';
-import LogoutButton from "./text/LogoutButton"; // 경로 확인 필요
+import LogoutButton from "./text/LogoutButton";
 import BottleDetailModal from './BottleDetailModal';
-import '../App.css'; // 또는 index.css
+import '../App.css';
 import TimeText from './text/Time';
-import { setOceanCode, setParticleCode, setSkyCode, setUserCount, setNewBottleList,setUserLat,setUserLot } from '../store/sceneSlice';
+import { setOceanCode, setParticleCode, setSkyCode, setUserCount, setNewBottleList, setUserLat, setUserLot, setSunsetTime, setSunRiseTime, setT1h } from '../store/sceneSlice';
 import { useSelector, useDispatch } from 'react-redux';
 import Swal from "sweetalert2";
 import api from '../api/api';
-import { connectWebSocket } from '../socket/socketClient';
-import { sendLocation } from '../socket/socketClient';
+import { connectWebSocket, sendLocation } from '../socket/socketClient';
 
 function ResponsiveCamera() {
   const { camera, size } = useThree();
@@ -35,152 +35,23 @@ function ResponsiveCamera() {
   return null;
 }
 
-// ===== 전체 씬 =====
 function FullOceanScene() {
-
-
-
   const dispatch = useDispatch();
-  const { oceanCode, particleCode, skyCode, userCount ,newBottleList,userLat,userLot} = useSelector(state => state.scene);
+  const { oceanCode, particleCode, skyCode, userCount, newBottleList, userLat, userLot, t1h } = useSelector(state => state.scene);
 
-  useEffect(() => {
-    if (!("geolocation" in navigator)) return;
+  // 로딩 상태
+  const [loading, setLoading] = useState(true);
 
-    let intervalId;
-
-    const sendCurrentPosition = () => {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          const { latitude, longitude } = pos.coords;
-          dispatch(setUserLat(latitude));
-          dispatch(setUserLot(longitude));
-
-          // 서버로 무조건 전송
-          sendLocation(latitude, longitude);
-        },
-        (err) => console.error(err),
-        { enableHighAccuracy: true }
-      );
-    };
-
-    // 10분마다 위치 전송
-    intervalId = setInterval(sendCurrentPosition, 10 * 60 * 1000); // 10분 = 600000ms
-
-    return () => {
-      clearInterval(intervalId);
-    };
-  }, [dispatch]);
-  
-  useEffect(() => {
-    const client = connectWebSocket((message) => {
-
-    });
-    return () => {
-      // 컴포넌트 언마운트 시 종료 옵션 필요시
-      // client.deactivate();
-    };
-  }, []);
-
-
-  // (추후 WebSocket이나 API로 갱신 가능---사용자 수 )
-
-
-  //유리병 조회 리스트
-  useEffect(() => {
-    const interval = setInterval(() => {
-      dispatch(setNewBottleList([
-        { id: '123132ㅌㅌ' },
-        { id: '123132ddㅌㅌx' },
-        { id: 'dddd' },
-        { id: '12313asdasdsad' },
-    ]));
-
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [newBottleList, dispatch]);
-
-  // 조회 유리병 클릭 시 상세모달
+  // 유리병 모달
+  const [isModalOpen, setModalOpen] = useState(false);
+  const [frontBottles, setFrontBottles] = useState([]);
   const [selectedBottleId, setSelectedBottleId] = useState(null);
 
-  const handleReadBottleClick = (id) => {
-    
-    setSelectedBottleId(id);
-  };
-
-  const handleReadBottleCloseModal = () => {
-    setSelectedBottleId(null);
-  };
-
-// 사전 로그아웃
-const handlePreLogout = async () => {
-  try {
-    const response = await api.put("/member/pre/logout");
-    if (response.status === 200) {
-      // 사전 로그아웃 성공 후 실제 로그아웃 실행
-      await handleLogout();  
-    }
-  } catch (error) {
-    Swal.fire({
-      icon: "error",
-      title: "로그아웃 실패",
-      text: "로그아웃 중 문제가 발생했습니다.",
-      confirmButtonText: "확인",
-    });
-  }
-};
-
-  //로그아웃
-const handleLogout = async () => {
-  try {
-    const response = await api.get("/member/logout");
-    if (response.status === 200) {
-      // 로그아웃 성공 시 로그인 페이지로 이동
-      
-      window.location.href = "/doit";
-    }
-  } catch (error) {
-    Swal.fire({
-      icon: "error", // success, error, warning, info, question 가능
-      title: "로그아웃 실패",
-      text: "로그아웃 중 문제가 발생했습니다.",
-      confirmButtonText: "확인",
-    });
-  }
-};
-
-
-  /* 유리병 편지 띄우기 버튼 */
-  const [isModalOpen, setModalOpen] = useState(false);
-  const handleBottleClick = () => setModalOpen(true);
-  const handleClose = () => setModalOpen(false);
-
-  const [frontBottles, setFrontBottles] = useState([]);
-  const handleSubmit = () => {
-    // API 성공 가정 → 바로 병 추가
-    const newBottle = {
-      id: Date.now().toString(),
-      enter: true,
-      position: { y: 1, z: (Math.random() - 0.5) * 10 },
-    };
-
-    setFrontBottles((prev) => [...prev, newBottle]);
-
-    // 모달 닫기
-    setModalOpen(false);
-  };
-
-  //컴포넌트 타입 분기처리
-
-
-
-
+  const font = '/fonts/Pacifico-Regular.ttf';
   const nightDawnColor = '#E0E7FF';
   const DayColor = '#2563EB';
-  const sunSetColor = '#FB923C'; 
-
-  // // 폰트 결정 
-  const font = '/fonts/Pacifico-Regular.ttf';
-  let fontColor = nightDawnColor; // 기본값
+  const sunSetColor = '#FB923C';
+  let fontColor = nightDawnColor;
 
   if (oceanCode === 'NORMAL_OCEAN' || oceanCode === 'DAY_OCEAN') {
     fontColor = DayColor;
@@ -189,32 +60,146 @@ const handleLogout = async () => {
   } else if (oceanCode === 'SUN_RISE_SET_OCEAN') {
     fontColor = sunSetColor;
   }
-  
 
+  // ======================
+  // 위치 전송
+  // ======================
+  useEffect(() => {
+    if (!("geolocation" in navigator)) return;
+    const sendCurrentPosition = () => {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const { latitude, longitude } = pos.coords;
+          dispatch(setUserLat(latitude));
+          dispatch(setUserLot(longitude));
+          sendLocation(latitude, longitude);
+        },
+        (err) => console.error(err),
+        { enableHighAccuracy: true }
+      );
+    };
+    sendCurrentPosition();
+    const intervalId = setInterval(sendCurrentPosition, 10 * 60 * 1000); // 10분
+    return () => clearInterval(intervalId);
+  }, [dispatch]);
+
+  // ======================
+  // 웹소켓 연결
+  // ======================
+  useEffect(() => {
+    const client = connectWebSocket((message) => { });
+    return () => { /* client.deactivate(); */ };
+  }, []);
+
+  // ======================
+  // 날씨 정보 조회
+  // ======================
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const { latitude, longitude } = pos.coords;
+        try {
+          const response = await api.post("/wheatherbgm/wthr", { lat: latitude, lot: longitude });
+          if (response.status === 200) {
+            dispatch(setOceanCode(response.data.data.oceanCode));
+            dispatch(setSkyCode(response.data.data.skyCode));
+            dispatch(setParticleCode(response.data.data.particleCode));
+            dispatch(setSunRiseTime(response.data.data.sunRiseTime));
+            dispatch(setSunsetTime(response.data.data.sunSetTime));
+            dispatch(setT1h(response.data.data.t1h));
+            setLoading(false); // ✅ 데이터 로딩 완료
+          }
+        } catch (error) {
+          console.error(error);
+          Swal.fire({
+            icon: "error",
+            title: "날씨정보 조회 실패",
+            text: error.response?.data?.msg || "오류가 발생했습니다.",
+            confirmButtonText: "확인",
+          });
+        }
+      },
+      (err) => console.error("위치 조회 실패:", err),
+      { enableHighAccuracy: true }
+    );
+  }, [dispatch]);
+
+  // ======================
+  // 유리병 조회
+  // ======================
+  useEffect(() => {
+    const interval = setInterval(() => {
+      dispatch(setNewBottleList([
+        { id: '123132ㅌㅌ' },
+        { id: '123132ddㅌㅌx' },
+        { id: 'dddd' },
+        { id: '12313asdasdsad' },
+      ]));
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [newBottleList, dispatch]);
+
+  // ======================
+  // 유리병 모달 처리
+  // ======================
+  const handleBottleClick = () => setModalOpen(true);
+  const handleClose = () => setModalOpen(false);
+  const handleSubmit = () => {
+    const newBottle = {
+      id: Date.now().toString(),
+      enter: true,
+      position: { y: 1, z: (Math.random() - 0.5) * 10 },
+    };
+    setFrontBottles((prev) => [...prev, newBottle]);
+    setModalOpen(false);
+  };
+
+  const handleReadBottleClick = (id) => setSelectedBottleId(id);
+  const handleReadBottleCloseModal = () => setSelectedBottleId(null);
+
+  // ======================
+  // 로그아웃
+  // ======================
+  const handlePreLogout = async () => {
+    try {
+      const response = await api.put("/member/pre/logout");
+      if (response.status === 200) await handleLogout();
+    } catch (error) {
+      Swal.fire({ icon: "error", title: "로그아웃 실패", text: "로그아웃 중 문제가 발생했습니다.", confirmButtonText: "확인" });
+    }
+  };
+  const handleLogout = async () => {
+    try {
+      const response = await api.get("/member/logout");
+      if (response.status === 200) window.location.href = "/doit";
+    } catch (error) {
+      Swal.fire({ icon: "error", title: "로그아웃 실패", text: "로그아웃 중 문제가 발생했습니다.", confirmButtonText: "확인" });
+    }
+  };
+
+  // ======================
+  // 로딩 화면
+  // ======================
+  if (loading) {
+    return (
+      <div className="scene-wrapper" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <div className="spinner"></div>
+      </div>
+    );
+  }
+
+  // ======================
+  // 전체 씬 렌더링
+  // ======================
   return (
-  <div className="scene-wrapper">
-
-
-     <Canvas camera={{ position: [0, 10, 20], fov: 75 }}>
-      <ResponsiveCamera />
-        {/* 조명 */}
+    <div className="scene-wrapper">
+      <Canvas camera={{ position: [0, 10, 20], fov: 75 }}>
+        <ResponsiveCamera />
         <ambientLight intensity={0.5} />
         <directionalLight position={[10, 25, 10]} intensity={0.8} />
-        
-        {/* 파티클 */}
         <Particle code={particleCode} />
-      
-
-        {/* 하늘/태양/달 */}
-         <SkyType code={skyCode} sunPosition={[10, 20, 10]} />
-
-
-        {/* 바다 */}
+        <SkyType code={skyCode} sunPosition={[10, 20, 10]} />
         <Ocean code={oceanCode} />
-
-
-
-         {/* 답장편지 글귀 */}
         <FloatingText
           textArray={['안']}
           startY={-1}
@@ -223,69 +208,44 @@ const handleLogout = async () => {
           font={font}
           fontcolor={fontColor}
         />
-
-
-      {/* 흘러들어온 유리병 편지들 */}
-      <FloatingBottleManager
+        <FloatingBottleManager
           newBottleList={newBottleList}
-          onBottleClick={handleReadBottleClick} // 여기서 전달
-      />
-
-
-     {/* 글쓰기 작성성공 시 유리병 흘러감 */}
-    <FloatingBottleFromFrontManager
-      bottles={frontBottles}
-      removeBottle={(id) => setFrontBottles((prev) => prev.filter((b) => b.id !== id))}
-    />
-
+          onBottleClick={handleReadBottleClick}
+        />
+        <FloatingBottleFromFrontManager
+          bottles={frontBottles}
+          removeBottle={(id) => setFrontBottles((prev) => prev.filter((b) => b.id !== id))}
+        />
       </Canvas>
 
-      {/* 음악 플레이어 */}
-    <MusicPlayer 
-      src="/audio/sample.mp3" 
-      className="music-player"
-    />
+      <MusicPlayer src="/audio/sample.mp3" className="music-player" />
+      <button onClick={handleBottleClick} className="bottle-button">
+        <img
+          src="https://teamgoo.s3.ap-northeast-2.amazonaws.com/bottle/ChatGPT+Image+2025%E1%84%82%E1%85%A7%E1%86%AB+8%E1%84%8B%E1%85%AF%E1%86%AF+19%E1%84%8B%E1%85%B5%E1%86%AF+%E1%84%8B%E1%85%A9%E1%84%8C%E1%85%A5%E1%86%AB+12_37_44.png"
+          alt="bottle"
+        />
+      </button>
 
-    {/* 유리병 글쓰기 버튼 */}
-    <button
-      onClick={handleBottleClick}
-      className="bottle-button"
-    >
-      <img
-        src="https://teamgoo.s3.ap-northeast-2.amazonaws.com/bottle/ChatGPT+Image+2025%E1%84%82%E1%85%A7%E1%86%AB+8%E1%84%8B%E1%85%AF%E1%86%AF+19%E1%84%8B%E1%85%B5%E1%86%AF+%E1%84%8B%E1%85%A9%E1%84%8C%E1%85%A5%E1%86%AB+12_37_44.png"
-        alt="bottle"
-      />
-    </button>
-
-    {/* 실시간 이용자 표시 */}
-    <UserCount count={userCount} className="user-count" />
-      {/* 로그아웃 버튼 */}
+      <UserCount count={userCount} className="user-count" />
       <LogoutButton onLogout={handlePreLogout} />
-    {/* 모달 */}
-    <BottleLetterModal open={isModalOpen} onClose={handleClose} onSubmit={handleSubmit} />
-    <BottleDetailModal
-      open={!!selectedBottleId}
-      bottleId={selectedBottleId}
-      onClose={handleReadBottleCloseModal}
-      onLeave={(id) => {
-        setNewBottleList((prev) => prev.filter((b) => b.id !== id));
-        handleReadBottleCloseModal();
-      }}
-      onSubmit={(id) => {
-        setNewBottleList((prev) => prev.filter((b) => b.id !== id));
-        handleReadBottleCloseModal();
-      }}
-    />
+      <BottleLetterModal open={isModalOpen} onClose={handleClose} onSubmit={handleSubmit} />
+      <BottleDetailModal
+        open={!!selectedBottleId}
+        bottleId={selectedBottleId}
+        onClose={handleReadBottleCloseModal}
+        onLeave={(id) => {
+          setNewBottleList((prev) => prev.filter((b) => b.id !== id));
+          handleReadBottleCloseModal();
+        }}
+        onSubmit={(id) => {
+          setNewBottleList((prev) => prev.filter((b) => b.id !== id));
+          handleReadBottleCloseModal();
+        }}
+      />
 
-
-    {/* 타이머 */}
-    <TimeText font={font} color={fontColor} />
-
-
-    {/* 기온 */}
-    <Temperature  font={font} color={fontColor}/>
-
-  </div>
+      <TimeText font={font} color={fontColor} />
+      <Temperature t1h={t1h} font={font} color={fontColor} />
+    </div>
   );
 }
 

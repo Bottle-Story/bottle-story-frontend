@@ -2,7 +2,7 @@
 import React from 'react';
 import './Time.css';
 
-export default function TimeText({ font, color }) {
+const Temperature = ({ t1h = 20, font, color}) => {
   return (
     <div
       className="temperature-text"
@@ -11,7 +11,13 @@ export default function TimeText({ font, color }) {
         color: color || '#fff',
       }}
     >
-      -30℃
+    
+      {t1h}℃
     </div>
   );
-}
+};
+
+
+export default Temperature;
+
+

@@ -2,7 +2,7 @@
 
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client'; 
-import { setUserCount, setWebsocketConnected } from '../store/sceneSlice';
+import { setUserCount, setWebsocketConnected ,setSunRiseTime,setSunsetTime,setOceanCode,setParticleCode,setSkyCode,setT1h } from '../store/sceneSlice';
 import { store } from '../store/index';
 import api from "../api/api";
 
@@ -59,6 +59,21 @@ export const connectWebSocket = async () => {
             // 날씨/bgm 
             stompClient.subscribe('/user/topic/wthrBgm', (msg) => {
                 console.log('받은 메시지:', JSON.parse(msg.body));
+               try {
+                    const body = JSON.parse(msg.body);
+ 
+                    if (body.data.userCnt !== undefined) {
+                        store.dispatch(setOceanCode(body.data.oceanCode));
+                        store.dispatch(setSkyCode(body.data.skyCode));
+                        store.dispatch(setParticleCode(body.data.particleCode));
+                        store.dispatch(setSunRiseTime(body.data.sunRiseTime));
+                        store.dispatch(setSunsetTime(body.data.sunSetTime));
+                        store.dispatch(setT1h(body.data.t1h));
+                    }
+                    
+                } catch (e) {
+                    console.error('날씨 정보 파싱 실패', e);
+                }
             });      
              // 유리병 조회 리스트
             stompClient.subscribe('/user/topic/btlList', (msg) => {
@@ -72,7 +87,7 @@ export const connectWebSocket = async () => {
             stompClient.subscribe('/topic/liveUser', (msg) => {
                 try {
                     const body = JSON.parse(msg.body);
-                    // body 구조 확인 필요 (예: { userCnt: 12 })
+ 
 
                     if (body.data.userCnt !== undefined) {
                         store.dispatch(setUserCount(body.data.userCnt)); // Redux 상태 갱신

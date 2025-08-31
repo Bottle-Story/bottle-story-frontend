@@ -176,7 +176,27 @@
 .blm-primary:active {
   transform: translateY(0);
 }
+/* 제목 입력 필드 */
+.blm-title-input {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  color: #4a3a2c;
+  text-shadow: 1px 1px 0 #fff6;
+  font-family: "Noto Serif KR", "Apple SD Gothic Neo", serif;
+  padding: 4px 0;
+  border-bottom: 2px dashed rgba(120, 90, 60, 0.35); /* 밑줄로 제목 칸 느낌 */
+}
 
+.blm-title-input::placeholder {
+  color: rgba(100, 80, 60, 0.45);
+  font-weight: 500;
+  font-style: italic;
+}
 /* 등장 애니메이션 */
 @keyframes blm-pop {
   from { transform: scale(0.97); opacity: 0; }

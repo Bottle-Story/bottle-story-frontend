@@ -127,17 +127,17 @@ function FullOceanScene() {
   // ======================
   // 유리병 조회
   // ======================
-  useEffect(() => {
-    const interval = setInterval(() => {
-      dispatch(setNewBottleList([
-        { id: '123132ㅌㅌ' },
-        { id: '123132ddㅌㅌx' },
-        { id: 'dddd' },
-        { id: '12313asdasdsad' },
-      ]));
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [newBottleList, dispatch]);
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     dispatch(setNewBottleList([
+  //       { id: '123132ㅌㅌ' },
+  //       { id: '123132ddㅌㅌx' },
+  //       { id: 'dddd' },
+  //       { id: '12313asdasdsad' },
+  //     ]));
+  //   }, 5000);
+  //   return () => clearInterval(interval);
+  // }, [newBottleList, dispatch]);
 
   // ======================
   // 유리병 모달 처리

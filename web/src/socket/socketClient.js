@@ -2,7 +2,7 @@
 
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client'; 
-import { setUserCount, setWebsocketConnected ,setSunRiseTime,setSunsetTime,setOceanCode,setParticleCode,setSkyCode,setT1h } from '../store/sceneSlice';
+import { setUserCount, setWebsocketConnected ,setSunRiseTime,setSunsetTime,setOceanCode,setParticleCode,setSkyCode,setT1h, setNewBottleList } from '../store/sceneSlice';
 import { store } from '../store/index';
 import api from "../api/api";
 
@@ -77,7 +77,16 @@ export const connectWebSocket = async () => {
             });      
              // 유리병 조회 리스트
             stompClient.subscribe('/user/topic/btlList', (msg) => {
-                console.log('받은 메시지:', JSON.parse(msg.body));
+               try {
+                    const body = JSON.parse(msg.body);
+ 
+                    if (body.data.btlLtrNoList !== undefined) {
+                        store.dispatch(setNewBottleList(body.data.btlLtrNoList));
+                    }
+                    
+                } catch (e) {
+                    console.error('날씨 정보 파싱 실패', e);
+                }
             });   
              // 유리병 답변 글귀 
             stompClient.subscribe('/user/topic/btlReply', (msg) => {

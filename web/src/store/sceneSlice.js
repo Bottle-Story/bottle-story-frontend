@@ -8,7 +8,9 @@ const initialState = {
   sunRiseTime: '06:12',  // 기본 일출 시간
   t1h:'20',
   userCount: 0,
-  websocketConnected: false // ← 웹소켓 연결 상태 추가
+  websocketConnected: false ,// ← 웹소켓 연결 상태 추가,
+    newBottleList: [] // ← 여기를 추가
+
 
 };
 

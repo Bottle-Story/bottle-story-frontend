@@ -2,6 +2,8 @@
 import React, { useEffect, useState } from 'react';
 import '../css/BottleDetailModal.css';
 import api from '../api/api';
+import Swal from "sweetalert2";
+
 export default function BottleDetailModal({ open, bottleId, onClose, onLeave, onSubmit }) {
   const [bottle, setBottle] = useState(null);
   const [text, setText] = useState('');
@@ -40,21 +42,41 @@ export default function BottleDetailModal({ open, bottleId, onClose, onLeave, on
 
   if (!open || !bottle) return null;
 
-const handleLeave = () => {
-  // if (!bottle) return; // 안전장치
-  // if (onLeave) {
-  //   fetch(`/api/bottle/${bottle.id}/leave`, { method: 'POST' })
-  //     .then(() => onLeave(bottle.id))
-  //     .catch(() => onLeave(bottle.id)); // 수정
-  // } else {
-  //   console.warn('onLeave callback 없음');
-  // }
-  // onClose();
-  
-  console.log('bottle:'+bottle.id);
-  onLeave(bottle.id);
-  onClose();
+const handleLeave = async () => {
+  try {
+    if (open && bottleId) {
 
+      const res = await api.post("/bottle/justFlow", { btlLtrNo: bottleId });
+      console.log(res.data);
+      if (res.status === 200) {
+           Swal.fire({
+           icon: "success",
+           title: "흘려보내기 성공",
+           text: '유리병 편지를 그냥 흘려보냈습니다.',
+           confirmButtonText: "확인",
+           });
+          onLeave(bottle.id);
+      }else{
+           Swal.fire({
+           icon: "error",
+           title: "흘려보내기 실패 ",
+           text:  "오류가 발생했습니다.",
+           confirmButtonText: "확인",
+           });
+      }
+    }
+  } catch (err) {
+           Swal.fire({
+           icon: "error",
+           title: "흘려보내기 실패",
+           text: err.response?.data?.msg || "오류가 발생했습니다.",
+           confirmButtonText: "확인",
+           });
+  }
+
+  console.log('bottle:' + bottle.id);
+
+  onClose();
 };
 
 const handleSubmit = () => {

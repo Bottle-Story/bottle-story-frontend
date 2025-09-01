@@ -234,11 +234,12 @@ function FullOceanScene() {
         bottleId={selectedBottleId}
         onClose={handleReadBottleCloseModal}
         onLeave={(id) => {
-          setNewBottleList((prev) => prev.filter((b) => b.id !== id));
+          console.log('테스트!!'+id);
+    dispatch(setNewBottleList(newBottleList.filter((b) => b.id !== id))); // ✅ Redux 상태 갱신
           handleReadBottleCloseModal();
         }}
         onSubmit={(id) => {
-          setNewBottleList((prev) => prev.filter((b) => b.id !== id));
+    dispatch(setNewBottleList(newBottleList.filter((b) => b.id !== id))); // ✅ 동일하게 수정
           handleReadBottleCloseModal();
         }}
       />

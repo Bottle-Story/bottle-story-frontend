@@ -11,12 +11,14 @@ export default function BottleDetailModal({ open, bottleId, onClose, onLeave, on
       try {
         if (open && bottleId) {
           // 사용자 정보 예시 (테스트 용도)
-          const res = await api.get("/member/devtest10");
+          const res = await api.get("/bottle/letter/detail", {  
+             params: { btlLtrNo: bottleId } 
+           });
           console.log("내 정보:", res.data);
                   setBottle({
-          id: bottleId,
-          title: '불러오기 실패',
-          content: '내용을 가져올 수 없습니다.'
+          id: res.data.data.btlLtrNo,
+          title: res.data.data.title,
+          content: res.data.data.content
         });
 
           // // 병 정보 가져오기
@@ -52,6 +54,7 @@ const handleLeave = () => {
   console.log('bottle:'+bottle.id);
   onLeave(bottle.id);
   onClose();
+
 };
 
 const handleSubmit = () => {

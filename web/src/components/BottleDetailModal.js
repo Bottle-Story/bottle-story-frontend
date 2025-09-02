@@ -79,7 +79,7 @@ const handleLeave = async () => {
   onClose();
 };
 
-const handleSubmit = () => {
+const handleSubmit = async() => {
   // if (!bottle) return;
   // if (text.trim() === '') return;
   // if (onSubmit) {
@@ -93,10 +93,50 @@ const handleSubmit = () => {
   // }
   // setText('');
   // onClose();
+      if(!text){
+      alert('답변내용은 필수 입니다.')
+      return;
+    }
+  try {
 
-    console.log('bottle:'+bottle.id);
-  onLeave(bottle.id);
-  onClose();
+
+    if (open && bottleId) {
+
+      const res = await api.post("/bottle/reply", { btlLtrNo: bottleId ,btlRpyContent : text});
+
+      console.log(res.data);
+      if (res.status === 200) {
+           Swal.fire({
+           icon: "success",
+           title: "답변글귀 작성 성공",
+           text: '글귀를 작성하여 흘려보냈습니다.',
+           confirmButtonText: "확인",
+           });
+          onLeave(bottle.id);
+      }else{
+           Swal.fire({
+           icon: "error",
+           title: "답변글귀 작성 실패 ",
+           text:  "오류가 발생했습니다.",
+           confirmButtonText: "확인",
+           });
+      }
+    }
+  } catch (err) {
+           Swal.fire({
+           icon: "error",
+           title: "답변글귀 작성 실패",
+           text: err.response?.data?.msg || "오류가 발생했습니다.",
+           confirmButtonText: "확인",
+           });
+  }
+  finally{
+    setText('');
+    onClose();
+  }
+
+
+
 };
 
   return (

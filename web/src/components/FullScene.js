@@ -127,17 +127,29 @@ function FullOceanScene() {
   // ======================
   // 유리병 조회
   // ======================
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     dispatch(setNewBottleList([
-  //       { id: '123132ㅌㅌ' },
-  //       { id: '123132ddㅌㅌx' },
-  //       { id: 'dddd' },
-  //       { id: '12313asdasdsad' },
-  //     ]));
-  //   }, 5000);
-  //   return () => clearInterval(interval);
-  // }, [newBottleList, dispatch]);
+  useEffect(() => {
+
+  const fetchBottleList = async () => {
+    try {
+      const response = await api.get("/bottle/letter");
+      if (response.status === 200) {
+        console.log(response.data.data)
+        dispatch(setNewBottleList(response.data.data));
+        setLoading(false); // ✅ 데이터 로딩 완료
+      }
+    } catch (error) {
+      console.error(error);
+      Swal.fire({
+        icon: "error",
+        title: "유리병 조회 실패",
+        text: error.response?.data?.msg || "오류가 발생했습니다.",
+        confirmButtonText: "확인",
+      });
+    }
+  };
+
+  fetchBottleList();
+  }, [ dispatch]);
 
   // ======================
   // 유리병 모달 처리

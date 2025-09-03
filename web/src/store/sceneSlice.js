@@ -9,7 +9,8 @@ const initialState = {
   t1h:'20',
   userCount: 0,
   websocketConnected: false ,// ← 웹소켓 연결 상태 추가,
-    newBottleList: [] // ← 여기를 추가
+  newBottleList: [],
+  textArray:[],
 
 
 };
@@ -28,7 +29,8 @@ const sceneSlice = createSlice({
     setNewBottleList: (state, action) => { state.newBottleList = action.payload; },
     setUserLat: (state, action) => { state.userLat = action.payload; },
     setUserLot: (state, action) => { state.userLot = action.payload; },
-    setWebsocketConnected: (state, action) => { state.websocketConnected = action.payload; } // ← 액션 추가
+    setTextArray: (state, action) => { state.textArray = action.payload; },
+    setWebsocketConnected: (state, action) => { state.websocketConnected = action.payload; } 
 
   }
 });
@@ -44,6 +46,7 @@ export const {
   setWebsocketConnected,
   setSunsetTime,
   setSunRiseTime,
-  setT1h
+  setT1h,
+  setTextArray
 } = sceneSlice.actions;
 export default sceneSlice.reducer;

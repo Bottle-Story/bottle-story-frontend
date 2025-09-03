@@ -1,6 +1,7 @@
 // src/components/FullOceanScene.js
 import React, { useRef, useState, useEffect } from 'react';
 import { Canvas, useThree } from '@react-three/fiber';
+import { Text } from '@react-three/drei';
 import Ocean from './ocean/Ocean';
 import Particle from './particle/Particle';
 import SkyType from './sky/Sky';
@@ -37,7 +38,12 @@ function ResponsiveCamera() {
 
 function FullOceanScene() {
   const dispatch = useDispatch();
-  const { oceanCode, particleCode, skyCode, userCount, newBottleList, userLat, userLot, t1h } = useSelector(state => state.scene);
+  const { oceanCode, particleCode, skyCode, userCount, newBottleList, userLat, userLot, t1h, textArray } = useSelector(state => state.scene);
+  
+  // textArray 변경 디버깅
+  useEffect(() => {
+    console.log('FullScene textArray 변경:', textArray);
+  }, [textArray]);
 
   // 로딩 상태
   const [loading, setLoading] = useState(true);
@@ -213,7 +219,6 @@ function FullOceanScene() {
         <SkyType code={skyCode} sunPosition={[10, 20, 10]} />
         <Ocean code={oceanCode} />
         <FloatingText
-          textArray={['안']}
           startY={-1}
           endY={12}
           delay={0.5}

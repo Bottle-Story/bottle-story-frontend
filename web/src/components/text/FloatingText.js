@@ -1,106 +1,112 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Text } from '@react-three/drei';
 import * as THREE from 'three';
+import { useSelector } from 'react-redux';
 
 export default function FloatingText({
-  textArray = ['가', '나', '다', '라'],
   startY = 0,
   endY = 3,
   delay = 0.5,
   font,
   fontcolor,
   fontSize = 1,
-  gap = 0.3,            // 글자 간 간격
-  pauseTime = 60,        // 일시정지 시간 (초)
-  maxCharsPerLine = 53,  // 한 줄 최대 글자 수
-  lineGap = 2            // 줄 간격
+  gap = 0.3,
+  maxCharsPerLine = 53,
+  lineGap = 2,
 }) {
-  // 글자 상태 관리
-  const [letters, setLetters] = useState(
-    textArray.map((char, i) => ({
-      char,
-      y: startY + Math.random() * 0.5,
-      opacity: 0,
-      phase: 'fadeIn',           // fadeIn -> pause -> fadeOut
-      delay: i * delay,
-      line: Math.floor(i / maxCharsPerLine),   // 몇 번째 줄인지
-      indexInLine: i % maxCharsPerLine,       // 줄 내 위치
-      fadeOutStartTime: 0                        // 글자별 페이드아웃 시작 시간
-    }))
-  );
+  // ✅ Redux에서 textArray 가져오기
+  const textArray = useSelector((state) => state.scene.textArray);
+
+  // textArray 변경될 때마다 letters 초기화
+  const [letters, setLetters] = useState([]);
+  const [animationStartTime, setAnimationStartTime] = useState(0);
+
+  useEffect(() => {
+    console.log('FloatingText textArray 변경:', textArray);
+    if (textArray && textArray.length > 0) {
+      const newLetters = textArray.map((char, i) => ({
+        char,
+        y: startY,
+        line: Math.floor(i / maxCharsPerLine),
+        indexInLine: i % maxCharsPerLine,
+        delay: i * delay,
+      }));
+      console.log('생성된 letters:', newLetters);
+      setLetters(newLetters);
+      setAnimationStartTime(Date.now());
+    } else {
+      setLetters([]);
+    }
+  }, [textArray, startY, delay, maxCharsPerLine]);
 
   const refs = useRef([]);
-  const [allReached, setAllReached] = useState(false);
-  const [pauseStart, setPauseStart] = useState(0);
 
   useFrame((state) => {
+    if (!letters.length || !animationStartTime) return;
+
+    const currentTime = Date.now();
+    const elapsedSeconds = (currentTime - animationStartTime) / 1000;
+
     letters.forEach((letter, i) => {
-      const elapsed = state.clock.elapsedTime - letter.delay;
       if (!refs.current[i]) return;
 
-      // FadeIn
-      if (letter.phase === 'fadeIn' && elapsed > 0) {
-        refs.current[i].position.y = THREE.MathUtils.lerp(
-          letter.y,
-          endY - letter.line * lineGap,
-          elapsed * 0.2
-        );
-        refs.current[i].material.opacity = Math.min(1, elapsed * 0.5);
+      const letterDelay = letter.delay;
+      const letterElapsed = elapsedSeconds - letterDelay;
 
-        // 목표 위치 도달 시 pause로 전환
-        if (refs.current[i].position.y >= endY - letter.line * lineGap) {
-          letters[i].phase = 'pause';
-          setLetters([...letters]);
-        }
-
-      // FadeOut (글자별 순차적 페이드아웃)
-      } else if (letter.phase === 'fadeOut') {
-        const fadeElapsed = state.clock.elapsedTime - letter.fadeOutStartTime;
-        if (fadeElapsed > 0) {
-          // y 살짝 올리면서 페이드아웃
-          refs.current[i].position.y += 0.01;
-          refs.current[i].material.opacity = Math.max(0, 1 - fadeElapsed * 0.5); // 천천히 사라짐
+      if (letterElapsed > 0) {
+        const targetY = endY - letter.line * lineGap;
+        
+        if (elapsedSeconds < 60) { // 1분 동안 올라가기
+          // 천천히 올라가기
+          const progress = Math.min(letterElapsed * 0.3, 1);
+          refs.current[i].position.y = THREE.MathUtils.lerp(
+            letter.y,
+            targetY,
+            progress
+          );
+          
+          // 페이드인
+          if (refs.current[i].material) {
+            refs.current[i].material.opacity = Math.min(1, letterElapsed * 2);
+          }
+        } else { // 1분 후 내려가기
+          const fadeOutTime = elapsedSeconds - 60;
+          
+          // 아래로 내려가면서 페이드아웃
+          refs.current[i].position.y = targetY + fadeOutTime * 2;
+          
+          if (refs.current[i].material) {
+            refs.current[i].material.opacity = Math.max(0, 1 - fadeOutTime * 2);
+          }
         }
       }
     });
-
-    // 모든 글자가 목표 Y 위치 도달 확인
-    if (!allReached && letters.every((l, i) => refs.current[i]?.position.y >= endY - l.line * lineGap)) {
-      setAllReached(true);
-      setPauseStart(state.clock.elapsedTime);
-    }
-
-    // Pause 후 글자별 FadeOut 시작
-    if (allReached && state.clock.elapsedTime - pauseStart >= pauseTime) {
-      letters.forEach((l, i) => {
-        if (l.phase !== 'fadeOut') {
-          l.phase = 'fadeOut';
-          l.fadeOutStartTime = state.clock.elapsedTime + i * 0.2; // 글자별 0.2초 지연
-        }
-      });
-      setLetters([...letters]);
-    }
   });
 
+  // textArray가 비어있으면 아무것도 렌더링하지 않음
+  if (!textArray || textArray.length === 0) {
+    console.log('FloatingText: textArray가 비어있어서 null 반환');
+    return null;
+  }
+
+  console.log('FloatingText 렌더링 중, letters 개수:', letters.length);
+
   return letters.map((letter, i) => {
-    // 현재 줄에 남은 글자 수
     const charsInLine = Math.min(
       maxCharsPerLine,
       letters.length - letter.line * maxCharsPerLine
     );
-
-    // 줄별 시작 X 위치 (중앙 정렬)
     const lineStartX = -((charsInLine - 1) * (fontSize + gap)) / 2;
 
     return (
       <Text
-        key={i}
+        key={`${textArray.join('')}-${i}`}
         ref={(el) => (refs.current[i] = el)}
         position={[
           lineStartX + letter.indexInLine * (fontSize + gap),
           letter.y,
-          -10
+          -10,
         ]}
         fontSize={fontSize}
         font={font}

@@ -1,0 +1,203 @@
+/* 오버레이 */
+.blm-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(6px) saturate(0.85);
+}
+
+/* 모달 */
+.blm-modal {
+  position: relative;
+  width: min(760px, 92vw);
+  max-height: 86vh;
+  background: #fbf4dd;
+  border: 1px solid #cbb793;
+  border-radius: 16px;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.25), inset 0 0 60px rgba(255,255,255,0.45);
+  overflow: hidden;
+  animation: blm-pop 160ms ease-out;
+  clip-path: polygon(
+    2% 4%, 6% 0, 94% 0, 98% 3%, 100% 12%, 99% 20%, 100% 30%, 98% 40%,
+    100% 55%, 97% 65%, 100% 78%, 95% 85%, 98% 95%, 92% 100%, 10% 100%, 4% 97%, 0 90%,
+    2% 75%, 0 60%, 3% 45%, 0 25%
+  );
+}
+
+.blm-modal::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    url("https://www.transparenttextures.com/patterns/aged-paper.png"),
+    radial-gradient(800px 500px at 90% 100%, rgba(0,0,0,0.08), transparent 70%),
+    linear-gradient(180deg, rgba(0,0,0,0.06), transparent 25%, transparent 75%, rgba(0,0,0,0.05));
+  opacity: 0.9;
+  mix-blend-mode: multiply;
+}
+
+/* 헤더 */
+.blm-header {
+  padding: 20px 24px 10px 24px;
+}
+.blm-header h2 {
+  margin: 0;
+  font-size: 28px;
+  color: #4a3a2c;
+  font-weight: 800;
+  text-shadow: 1px 1px 0 #fff6;
+}
+.blm-sub {
+  margin: 6px 0 0 0;
+  color: #7a6b55;
+  font-size: 14px;
+}
+
+/* 닫기 버튼 */
+.blm-close {
+  position: absolute;
+  right: 12px;
+  top: 10px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.06);
+  cursor: pointer;
+  font-size: 22px;
+  line-height: 36px;
+  color: #3b3127;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.blm-close:hover {
+  transform: scale(1.08);
+  background: rgba(0,0,0,0.12);
+}
+
+/* 편지지 본문 */
+.blm-paper {
+  position: relative;
+  margin: 8px 24px 18px 24px;
+  padding: 18px 18px 18px 66px;
+  border-radius: 8px;
+  background: #fff8e7;
+  border: 1px solid rgba(160, 140, 110, 0.35);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.6),
+    inset 0 -1px 0 rgba(0,0,0,0.05),
+    inset 0 12px 22px rgba(0,0,0,0.05);
+}
+.blm-margin-line {
+  position: absolute;
+  left: 48px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(to bottom, rgba(200,75,75,0.35), rgba(200,75,75,0.15));
+  border-right: 1px solid rgba(120,40,40,0.15);
+}
+.blm-paper-lines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom, transparent, transparent 30px, rgba(0,0,0,0.08) 31px
+  );
+  pointer-events: none;
+}
+.blm-textarea {
+  position: relative;
+  width: 100%;
+  height: min(48vh, 420px);
+  resize: none;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #3d3529;
+  font-size: 16px;
+  line-height: 31px;
+  font-family: "Noto Serif KR", serif;
+  caret-color: #5a4733;
+}
+.blm-textarea::placeholder {
+  color: rgba(80, 60, 40, 0.55);
+}
+
+/* 글귀 작성 영역 */
+.blm-input-wrapper {
+  margin: 16px 24px;
+}
+.blm-input-paper {
+  position: relative;
+  padding: 12px 16px 12px 66px;
+  border-radius: 8px;
+  background: #fff8e7;
+  border: 1px solid rgba(160, 140, 110, 0.35);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.6),
+    inset 0 -1px 0 rgba(0,0,0,0.05),
+    inset 0 12px 22px rgba(0,0,0,0.05);
+}
+.blm-input-paper textarea {
+  width: 100%;
+  height: 60px;
+  resize: none;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: "Noto Serif KR", serif;
+  font-size: 16px;
+  line-height: 24px;
+  color: #3d3529;
+  padding: 4px 2px;
+  white-space: pre-wrap;
+}
+
+/* 글귀 작성 버튼 위치 */
+.blm-input-actions-bottom {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+.blm-input-actions-bottom .blm-left {
+  flex: 1;
+  margin-right: 8px;
+}
+.blm-input-actions-bottom .blm-right {
+  flex: 1;
+  margin-left: 8px;
+}
+
+/* 모달 버튼 공통 */
+.blm-primary {
+  border: 1px solid #7a5c3c;
+  background: linear-gradient(180deg, #f3dcc0, #e8caa7);
+  color: #3a2e22;
+  padding: 10px 16px;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
+  box-shadow: 0 4px 10px rgba(58,46,34,0.18);
+}
+.blm-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(58,46,34,0.24);
+  filter: saturate(1.02);
+}
+.blm-primary:active { transform: translateY(0); }
+
+/* 등장 애니메이션 */
+@keyframes blm-pop {
+  from { transform: scale(0.97); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+/* 모바일 대응 */
+@media (max-width: 520px) {
+  .blm-modal { border-radius: 10px; }
+  .blm-textarea { height: 46vh; }
+}

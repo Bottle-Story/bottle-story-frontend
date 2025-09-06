@@ -1,135 +1,137 @@
-import React, { useRef, useState, useEffect } from 'react';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { Sky } from '@react-three/drei';
-import * as THREE from 'three';
-import Ocean from './components/ocean/Ocean';
-import Particle from './components/particle/Particle';
-import SkyType from './components/sky/Sky';
+import React, { useEffect, useState } from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import FullScene from "./components/FullScene";
+import Login from "./components/LoginPage";
+import api from "./api/api";
+import './App.css';
 
-
-// // ===== 2. 하늘 + 해/달 컴포넌트 =====
-// function SkyWithSun({ sunPosition }) {
-//   return <Sky sunPosition={sunPosition} turbidity={5} rayleigh={1} distance={15000} />;
-// }
-
-// ===== 3. 낙뢰 효과 =====
-function LightningEffect() {
-  const lightRef = useRef();
-  const [flash, setFlash] = useState(false);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setFlash(Math.random() > 0.7); // 30% 확률로 번쩍
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  useFrame(() => {
-    if (lightRef.current) {
-      lightRef.current.intensity = flash ? 5 : 0;
-    }
-  });
-
-  return <pointLight ref={lightRef} position={[0, 20, 0]} color={0xffffff} />;
-}
-
-// ===== 4. 바람 효과 (물결 흔들림 + 바람 느낌) =====
-function WindEffect() {
-  const { scene } = useThree();
-  const windParticlesRef = useRef([]);
-  const numParticles = 50;
-
-  useEffect(() => {
-    const temp = [];
-    for (let i = 0; i < numParticles; i++) {
-      const geom = new THREE.SphereGeometry(0.05, 8, 8);
-      const mat = new THREE.MeshStandardMaterial({ color: 0xffffff, transparent: true, opacity: 0.5 });
-      const particle = new THREE.Mesh(geom, mat);
-      particle.position.set(Math.random() * 40 - 20, Math.random() * 5 + 5, Math.random() * 20 - 10);
-      scene.add(particle);
-      temp.push(particle);
-    }
-    windParticlesRef.current = temp;
-
-    return () => temp.forEach(p => scene.remove(p));
-  }, [scene]);
-
-  useFrame((state, delta) => {
-    windParticlesRef.current.forEach(p => {
-      p.position.x += delta * 2;
-      if (p.position.x > 20) p.position.x = -20;
-    });
-  });
-
-  return null;
-}
-
-// ===== 5. 유리병 편지 컴포넌트 =====
-function FloatingBottle({ id, zPosition }) {
-  const bottleRef = useRef();
-  const startX = -50;
-  const endX = Math.random() * 20 - 10;
-  const [position, setPosition] = useState(new THREE.Vector3(startX, 0.5, zPosition));
-
-  useFrame((state, delta) => {
-    if (bottleRef.current) {
-      position.x += delta * 0.5;
-      if (position.x > endX) position.x = endX;
-      position.y = Math.sin(state.clock.elapsedTime + position.x) * 0.02;
-      bottleRef.current.position.set(position.x, position.y, position.z);
-    }
-  });
+// ===== 위치 동의 모달 =====
+function LocationModal() {
+  const handleOpenSettings = () => {
+    alert(
+      "브라우저에서 위치 권한이 거부되었습니다.\n\n" +
+      "브라우저 설정에서 위치 권한을 허용해주세요.\n\n" +
+      "예시:\n" +
+      "- Chrome: 주소창 옆 자물쇠 → 위치 → 허용\n" +
+      "- Safari(iOS): 설정 → Safari → 위치 허용"
+    );
+  };
 
   return (
-    <mesh ref={bottleRef} position={position}>
-      <cylinderGeometry args={[0.2, 0.2, 0.8, 16]} />
-      <meshStandardMaterial color='orange' />
-    </mesh>
-  );
-}
-
-// ===== 6. 전체 씬 =====
-function FullOceanScene() {
-  //컴포넌트 타입 분기처리
-  const [oceanCode, setOceanCode] = useState('NORMAL_OCEAN');
-  const [particleCode, setParticleCode] = useState('PARTICLE_RAIN_DROP');
-  const [skyCode, setSkyCode] = useState('NIGHT_MOON_CLEAR');
-
-  const [bottles, setBottles] = useState([
-    { id: 1, z: -3 },
-    { id: 2, z: 0 },
-    { id: 3, z: 4 }
-  ]);
-
-  return (
-    <div style={{ width: '100vw', height: '100vh', overflow: 'hidden' }}>
-      <Canvas camera={{ position: [0, 15, 35], fov: 75 }}>
-        {/* 조명 */}
-        <ambientLight intensity={0.5} />
-        <directionalLight position={[10, 25, 10]} intensity={0.8} />
-
-        {/* 하늘 */}
-        {/* <SkyWithSun sunPosition={[10, 20, 10]} /> */}
-        {/* 하늘/태양/달 */}
-        <SkyType code={skyCode} sunPosition={[10, 20, 10]} />
-        {/* 바다 */}
-        {/* <CartoonOcean /> */}
-        <Ocean code={oceanCode} />
-
-        {/* 파티클 */}
-        <Particle code={particleCode} />
-        
-        {/* 날씨 효과 */}
-        <LightningEffect />
-        <WindEffect />
-
-        {/* 유리병 편지 */}
-        {bottles.map((bottle) => (
-          <FloatingBottle key={bottle.id} id={bottle.id} zPosition={bottle.z} />
-        ))}
-      </Canvas>
+    <div className="modal-backdrop">
+      <div className="modal-card">
+        <h2>위치 정보 제공이 필요합니다</h2>
+        <p>앱 사용을 위해 위치 정보 제공에 동의해 주세요.</p>
+        <button className="retry-btn" onClick={handleOpenSettings}>
+          위치 권한 안내
+        </button>
+      </div>
     </div>
   );
 }
 
-export default FullOceanScene;
+// ===== 보호 라우트 (로그인 + 위치 권한) =====
+function ProtectedRoute({ children }) {
+  const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [hasLocationPermission, setHasLocationPermission] = useState(false);
+
+  // 위치 확인
+  const checkLocation = () => {
+    setIsLoading(true);
+    setHasLocationPermission(false);
+
+    if (!navigator.geolocation) {
+      alert("현재 브라우저는 위치 정보를 지원하지 않습니다.");
+      setIsLoading(false);
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      () => {
+        setHasLocationPermission(true);
+        setIsLoading(false);
+      },
+      () => {
+        setHasLocationPermission(false);
+        setIsLoading(false);
+      }
+    );
+  };
+
+  // 로그인 확인 + 위치 확인
+  useEffect(() => {
+    const checkAuthAndLocation = async () => {
+      try {
+        const response = await api.get("/member/isAuth");
+        if (response.status === 200) {
+          setIsAuthenticated(true);
+          checkLocation();
+        } else {
+          setIsAuthenticated(false);
+          setIsLoading(false);
+        }
+      } catch {
+        setIsAuthenticated(false);
+        setIsLoading(false);
+      }
+    };
+    checkAuthAndLocation();
+  }, []);
+
+  if (isLoading) return <div className="loading">로딩중...</div>;
+  if (!isAuthenticated) return <Navigate to="/doit" replace />;
+  if (!hasLocationPermission) return <LocationModal />;
+
+  return children;
+}
+
+// ===== 공개 라우트 (로그인 상태면 접근 불가) =====
+function PublicRoute({ children }) {
+  const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const response = await api.get("/member/isAuth");
+        setIsAuthenticated(response.status === 200);
+      } catch {
+        setIsAuthenticated(false);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    checkAuth();
+  }, []);
+
+  if (isLoading) return <div className="loading">로딩중...</div>;
+
+  return isAuthenticated ? <Navigate to="/" replace /> : children;
+}
+
+// ===== App 컴포넌트 =====
+export default function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <FullScene />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/doit"
+          element={
+            <PublicRoute>
+              <Login />
+            </PublicRoute>
+          }
+        />
+      </Routes>
+    </Router>
+  );
+}

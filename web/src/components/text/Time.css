@@ -1,0 +1,32 @@
+.time-text {
+  position: absolute;
+  top: 2vh;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1200;
+  pointer-events: none;
+  font-size: clamp(24px, 2vw, 48px); /* 최소 24px, 최대 48px */
+}
+
+.temperature-text {
+  position: absolute;
+  top: 2vh;
+  right: 2.4vw;
+  z-index: 1200;
+  pointer-events: none;
+  font-size: clamp(28px, 2.5vw, 56px); /* 기존보다 약간 작게 조정 */
+}
+
+
+/* 모바일 대응 */
+@media (max-width: 768px) {
+  .time-text {
+    font-size: clamp(16px, 6vw, 28px);
+    top: 1vh;
+  }
+  .temperature-text {
+    font-size: clamp(20px, 8vw, 36px);
+    top: 1vh;
+    right: 2vw;
+  }
+}

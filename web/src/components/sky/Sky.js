@@ -16,6 +16,7 @@ import NightMoonCloudy from './type/NightMoonCloudy';
 import NightMoonOvercast from './type/NightMoonOvercast';
 
 export default function SkyType({ code, sunPosition }) {
+
   switch(code) {
     case 'DAWN_MOON_CLEAR': return <DawnMoonClear sunPosition={sunPosition} />;
     case 'DAWN_MOON_CLOUDY': return <DawnMoonCloudy sunPosition={sunPosition} />;

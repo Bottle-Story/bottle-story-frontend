@@ -1,38 +1,145 @@
-.App {
-  text-align: center;
+.scene-wrapper {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+/* 🎵 음악 플레이어 */
+.music-player {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 55%; /* 기본은 데스크탑 기준 */
+  z-index: 1000;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
+/* 🍼 유리병 버튼 */
+.bottle-button {
+  position: absolute;
+  right: 2%;
+  top: 7%;
+  width: 120px;
+  height: 120px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  z-index: 1000;
+}
+.bottle-button img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: transform 0.2s ease, filter 0.2s ease;
+  filter: drop-shadow(0px 8px 16px rgba(0,0,0,0.3));
+}
+.bottle-button img:hover {
+  transform: scale(1.1);
+  filter: drop-shadow(0px 12px 20px rgba(0,0,0,0.4));
+}
+
+/* 👥 이용자 수 */
+.user-count {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: white;
+  font-size: 18px;
+  z-index: 1000;
+}
+
+/* 📱 모바일 대응 (768px 이하) */
+@media (max-width: 768px) {
+  .music-player {
+    top: 70%; /* 모바일은 아래로 */
+  }
+
+  .bottle-button {
+    width: 80px;
+    height: 80px;
+    right: 10px;
+    top: 60px;
+  }
+
+  .user-count {
+    font-size: 14px;
+    bottom: 10px;
   }
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+/* 전체 배경 반투명 */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.5);
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
+  z-index: 1000;
+}
+
+/* 카드 스타일 */
+.modal-card {
+  background-color: #fff;
+  padding: 30px 40px;
+  border-radius: 15px;
+  text-align: center;
+  max-width: 400px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+}
+
+.modal-card h2 {
+  margin-bottom: 15px;
+  font-size: 1.5rem;
+  color: #333;
+}
+
+.modal-card p {
+  margin-bottom: 20px;
+  color: #666;
+  font-size: 1rem;
+}
+
+/* 버튼 스타일 */
+.retry-btn {
+  background: linear-gradient(90deg, #6dd5fa, #2980b9);
+  border: none;
+  padding: 10px 25px;
   color: white;
+  font-size: 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
 }
 
-.App-link {
-  color: #61dafb;
+.retry-btn:hover {
+  background: linear-gradient(90deg, #2980b9, #6dd5fa);
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-size: 1.2rem;
+  color: #555;
+}
+
+/* App.css */
+.spinner {
+  border: 8px solid rgba(255, 255, 255, 0.2);
+  border-top: 8px solid #ffffff;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
